@@ -48,16 +48,17 @@ jobs:
       - name: Package .exe with jpackage
         shell: pwsh
         run: |
-          $commit = "${{ github.sha }}".Substring(0, 7)
+          $version = "1.0.${{ github.run_number }}"
+          $jarFile = (Get-ChildItem -Path build/libs -Filter 'super-share-*.jar').Name
           jpackage --type exe `
             --name SuperShare `
             --input build/libs `
-            --main-jar super-share-*.jar `
+            --main-jar $jarFile `
             --main-class MainKt `
             --win-dir-chooser `
             --win-menu `
             --win-shortcut `
-            --app-version $commit
+            --app-version $version
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
@@ -68,14 +69,15 @@ jobs:
       - name: Package .dmg with jpackage
         shell: bash
         run: |
-          COMMIT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          APP_VERSION="1.0.${{ github.run_number }}"
+          JAR_FILE=$(find build/libs -name "super-share-*.jar" -printf "%f")
           jpackage \
           --type dmg \
           --name SuperShare \
           --input build/libs \
-          --main-jar super-share-*.jar \
+          --main-jar "$JAR_FILE" \
           --main-class MainKt \
-          --app-version "$COMMIT_HASH" \
+          --app-version "$APP_VERSION" \
           --icon your-icon.icns
 
       - name: Upload .dmg artifact
