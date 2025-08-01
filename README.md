@@ -13,10 +13,12 @@ on the same network.
    the [release page](https://github.com/gonBorn/super-share-tool/releases)
 
 2. Run it no matter on Mac or Windows laptop, you can see the window like this:
+
    <img src="./assets/showcase-2.png" alt="super-share" width="300"/>
 
 3. Type the ip address or scan the QR code to access the super-share web interface, where you can upload and download
    files.
+
    <img src="./assets/showcase.png" alt="super-share" width="300"/>
 
 ## Developer Handbook
