@@ -58,7 +58,6 @@ jobs:
             --output $jreDir `
             --add-modules java.base,java.desktop `
             --strip-debug `
-            --compress 2 `
             --no-header-files `
             --no-man-pages
 
