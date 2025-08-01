@@ -1,4 +1,4 @@
-name: Kotlin CI with JDK 21 + shadowJar + jpackage
+name: MacOS Build and Package
 
 on:
   push:
