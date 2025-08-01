@@ -1,0 +1,59 @@
+name: Kotlin CI with JDK 21 + shadowJar + jpackage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run ktlintFormat
+        run: ./gradlew ktlintFormat
+
+      - name: Build shadowJar
+        run: ./gradlew shadowJar
+
+      - name: Package portable app with jpackage (Windows)
+        shell: pwsh
+        run: |
+          $version = "1.0.${{ github.run_number }}"
+          $jarFile = (Get-ChildItem -Path build/libs -Filter 'super-share-*.jar').Name
+          jpackage --type app-image `
+            --name SuperShare `
+            --input build/libs `
+            --main-jar $jarFile `
+            --main-class MainKt `
+            --app-version $version
+            --vendor "zeyan-du"
+          Compress-Archive -Path SuperShare -DestinationPath SuperShare-windows-portable.zip
+
+      - name: Upload portable app artifact (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: super-share-windows-portable
+          path: SuperShare-windows-portable.zip
