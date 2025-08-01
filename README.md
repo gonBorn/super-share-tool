@@ -16,17 +16,21 @@ It allows you to share files over HTTP, making it easy to transfer files between
 
 ![super-share](./assets/showcase1.png)
 
-### How to use it
+### How to get the jar
 
-1. Build the fat jar by running:
+1. Build by yourself by running and find super-share-1.0.0.jar in `build/libs` directory
     ```bash
     ./gradlew shadowJar
     ```
 
-2. Find super-share-1.0.0.jar in `build/libs` directory
-3. Run the jar file with the following command in any directory that you want to share:
+2. Download the jar file from the [release page](https://github.com/gonBorn/super-share-tool/releases)
+
+### How to use it
+
+1. Make sure you have Java 21 or higher installed on your machine.
+2. Run the jar file with the following command in any directory that you want to share:
     ```bash
-    java -jar build/libs/super-share-1.0.0.jar
+    java -jar super-share-1.0.0.jar
     ```
    or you can specify the port number to run the server on:
     ```bash
