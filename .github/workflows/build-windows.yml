@@ -38,22 +38,74 @@ jobs:
       - name: Build shadowJar
         run: ./gradlew shadowJar
 
-      - name: Package portable app with jpackage (Windows)
+      - name: Create Windows EXE with Launch4j
         shell: pwsh
         run: |
-          $version = "1.0.${{ github.run_number }}"
-          $jarFile = (Get-ChildItem -Path build/libs -Filter 'super-share-*.jar').Name
-          jpackage --type app-image `
-            --name SuperShare `
-            --input build/libs `
-            --main-jar $jarFile `
-            --main-class MainKt `
-            --app-version $version `
-            --vendor "zeyan-du"
-          Compress-Archive -Path SuperShare -DestinationPath SuperShare-windows-portable.zip
+          $ErrorActionPreference = "Stop"
 
-      - name: Upload portable app artifact (Windows)
+          # Define variables
+          $version = "1.0.${{ github.run_number }}"
+          $jarFile = Get-ChildItem -Path build/libs -Filter 'super-share-*.jar' | Select-Object -First 1
+          $jarPath = $jarFile.FullName
+          $exeName = "SuperShare.exe"
+          $launch4jDir = "$env:USERPROFILE\launch4j"
+          $configFile = "launch4j-config.xml"
+          $jreDir = "build/jre"
+
+          # Create custom JRE using jlink
+          $javaHome = "${env:JAVA_HOME}"
+          & "$javaHome/bin/jlink.exe" `
+            --output $jreDir `
+            --add-modules java.base,java.desktop `
+            --strip-debug `
+            --compress 2 `
+            --no-header-files `
+            --no-man-pages
+
+          # Download Launch4j
+          Invoke-WebRequest -Uri "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download" -OutFile "launch4j.zip"
+          Expand-Archive -Path "launch4j.zip" -DestinationPath "$launch4jDir"
+
+          # Create config file for Launch4j
+          Set-Content -Path $configFile -Value @"
+          <launch4jConfig>
+            <dontWrapJar>false</dontWrapJar>
+            <headerType>gui</headerType>
+            <jar>$jarPath</jar>
+            <outfile>build/dist/$exeName</outfile>
+            <errTitle></errTitle>
+            <cmdLine></cmdLine>
+            <chdir>.</chdir>
+            <priority>normal</priority>
+            <downloadUrl>https://java.com/download</downloadUrl>
+            <supportUrl></supportUrl>
+            <customProcName>false</customProcName>
+            <stayAlive>false</stayAlive>
+            <restartOnCrash>false</restartOnCrash>
+            <manifest></manifest>
+            <icon>assets/file-transformer.ico</icon>
+            <bundledJrePath>$jreDir</bundledJrePath>
+            <jreMinVersion>21</jreMinVersion>
+            <jreMaxVersion>21</jreMaxVersion>
+            <versionInfo>
+              <fileVersion>$version</fileVersion>
+              <txtFileVersion>$version</txtFileVersion>
+              <productVersion>$version</productVersion>
+              <txtProductVersion>$version</txtProductVersion>
+              <fileDescription>SuperShare App</fileDescription>
+              <productName>SuperShare</productName>
+              <companyName>zeyan-du</companyName>
+              <internalName>SuperShare</internalName>
+              <originalFilename>$exeName</originalFilename>
+            </versionInfo>
+          </launch4jConfig>
+          "@
+
+          # Run Launch4j
+          & "$launch4jDir\launch4j\launch4j.exe" $configFile
+
+      - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
-          name: super-share-windows-portable
-          path: SuperShare-windows-portable.zip
+          name: super-share-windows-exe
+          path: build/dist/SuperShare.exe
