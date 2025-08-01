@@ -60,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: super-share-windows-portable
-          path: super-share-windows-portable.zip
+          path: SuperShare-windows-portable.zip
 
       - name: Package .dmg with jpackage (macOS)
         if: runner.os == 'macOS'
@@ -82,4 +82,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: super-share-dmg
-          path: super-share-*.dmg
+          path: SuperShare-*.dmg
