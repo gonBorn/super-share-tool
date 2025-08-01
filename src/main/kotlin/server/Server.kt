@@ -1,0 +1,198 @@
+package server
+
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.html.*
+import io.ktor.server.netty.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
+import kotlinx.html.*
+import net.lingala.zip4j.ZipFile
+import utils.IpAddressUtil.getLocalIpAddress
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+
+val connections = ConcurrentHashMap.newKeySet<DefaultWebSocketSession>()
+
+suspend fun broadcast(message: String) {
+  connections.forEach { session ->
+    session.send(message)
+  }
+}
+
+fun startServer() {
+  val baseDir = File(".").absoluteFile
+  val ipAddress = getLocalIpAddress()
+  println("Server running at http://$ipAddress:8080")
+
+  embeddedServer(Netty, port = 8080) {
+    install(WebSockets)
+
+    routing {
+      get("/") {
+        listDirectory(call, baseDir)
+      }
+
+      post("/upload") {
+        val multipart = call.receiveMultipart()
+        multipart.forEachPart { part ->
+          if (part is PartData.FileItem) {
+            val fileName = part.originalFileName ?: "unknown"
+            val file = File(baseDir, fileName)
+            part.streamProvider().use { input ->
+              file.outputStream().buffered().use { output ->
+                input.copyTo(output)
+              }
+            }
+            broadcast("UPLOAD: $fileName")
+          }
+          part.dispose()
+        }
+        call.respondRedirect("/")
+      }
+
+      get("/browse/{path...}") {
+        val path = call.parameters.getAll("path")?.joinToString(File.separator) ?: ""
+        val requestedFile = File(baseDir, path)
+        if (requestedFile.isDirectory) {
+          listDirectory(call, requestedFile)
+        } else {
+          call.respond(HttpStatusCode.NotFound)
+        }
+      }
+
+      get("/download/{path...}") {
+        val path = call.parameters.getAll("path")?.joinToString(File.separator) ?: ""
+        val requestedFile = File(baseDir, path)
+        if (requestedFile.exists() && requestedFile.isFile) {
+          broadcast("DOWNLOAD: ${requestedFile.name}")
+          call.respondFile(requestedFile)
+        } else {
+          call.respond(HttpStatusCode.NotFound)
+        }
+      }
+
+      get("/download-zip/{path...}") {
+        val path = call.parameters.getAll("path")?.joinToString(File.separator) ?: ""
+        val requestedDir = File(baseDir, path)
+        if (requestedDir.exists() && requestedDir.isDirectory) {
+          val tempZipFile = File.createTempFile(requestedDir.name, ".zip")
+          try {
+            ZipFile(tempZipFile).addFolder(requestedDir)
+            call.response.header(
+              HttpHeaders.ContentDisposition,
+              ContentDisposition
+                .Attachment
+                .withParameter(
+                  ContentDisposition.Parameters.FileName,
+                  "${requestedDir.name}.zip",
+                ).toString(),
+            )
+            broadcast("DOWNLOAD_ZIP: ${requestedDir.name}")
+            call.respondFile(tempZipFile)
+          } finally {
+            tempZipFile.delete()
+          }
+        } else {
+          call.respond(HttpStatusCode.NotFound)
+        }
+      }
+
+      webSocket("/ws") {
+        connections += this
+        try {
+          for (frame in incoming) {
+            if (frame is Frame.Text) {
+              val text = frame.readText()
+              broadcast("CHAT: $text")
+            }
+          }
+        } finally {
+          connections -= this
+        }
+      }
+    }
+  }.start(wait = true)
+}
+
+private suspend fun listDirectory(
+  call: ApplicationCall,
+  dir: File,
+) {
+  val baseDir = File(".").absoluteFile
+  val relativePath = dir.relativeTo(baseDir).path
+  call.respondHtml {
+    head {
+      title("File Share - ${if (relativePath.isEmpty()) "/" else relativePath}")
+      link(rel = "stylesheet", href = "https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+      meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
+    }
+    body {
+      div(classes = "container mt-4") {
+        h1 { +"File Share" }
+        h5 {
+          +"Current Directory: ${if (relativePath.isEmpty()) "/" else relativePath}"
+        }
+
+        if (relativePath.isNotEmpty()) {
+          val parentPath = dir.parentFile?.relativeTo(baseDir)?.path ?: ""
+          a(href = if (parentPath.isEmpty()) "/" else "/browse/$parentPath", classes = "btn btn-secondary mb-3") { +"../" }
+        }
+
+        form(action = "/upload", method = FormMethod.post, encType = FormEncType.multipartFormData) {
+          div(classes = "form-group") {
+            input(type = InputType.file, name = "file", classes = "form-control-file")
+          }
+          button(type = ButtonType.submit, classes = "btn btn-primary") { +"Upload File" }
+        }
+
+        hr()
+
+        table(classes = "table table-hover mt-4") {
+          thead {
+            tr {
+              th { +"Type" }
+              th { +"Name" }
+              th { +"Actions" }
+            }
+          }
+          tbody {
+            dir.listFiles()?.filter { !it.isHidden }?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))?.forEach { file ->
+              tr {
+                td {
+                  if (file.isDirectory) {
+                    +"📁"
+                  } else {
+                    +"📄"
+                  }
+                }
+                td {
+                  val link =
+                    if (file.isDirectory) {
+                      "/browse/${file.relativeTo(baseDir).path}"
+                    } else {
+                      "/download/${file.relativeTo(baseDir).path}"
+                    }
+                  a(href = link) { +file.name }
+                }
+                td {
+                  if (file.isDirectory) {
+                    a(
+                      href = "/download-zip/${file.relativeTo(baseDir).path}",
+                      classes = "btn btn-primary btn-sm",
+                    ) { +"Download ZIP" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
