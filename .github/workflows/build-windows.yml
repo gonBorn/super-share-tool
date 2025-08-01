@@ -32,8 +32,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run ktlintFormat
-        run: ./gradlew ktlintFormat
+#      - name: Run ktlintFormat
+#        run: ./gradlew ktlintFormat
 
       - name: Build shadowJar
         run: ./gradlew shadowJar
@@ -54,12 +54,18 @@ jobs:
 
           # Create custom JRE using jlink
           $javaHome = "${env:JAVA_HOME}"
-          & "$javaHome/bin/jlink.exe" `
-            --output $jreDir `
-            --add-modules java.base,java.desktop `
-            --strip-debug `
-            --no-header-files `
-            --no-man-pages
+          try {
+            & "$javaHome/bin/jlink.exe" `
+              --output $jreDir `
+              --add-modules java.base,java.desktop `
+              --strip-debug `
+              --no-header-files `
+              --no-man-pages `
+              -ErrorAction Stop
+          } catch {
+            Write-Error "❌ jlink failed: $_"
+            exit 1
+          }
 
           # Download Launch4j
           Invoke-WebRequest -Uri "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download" -OutFile "launch4j.zip"
@@ -101,7 +107,12 @@ jobs:
           "@
 
           # Run Launch4j
-          & "$launch4jDir\launch4j\launch4j.exe" $configFile
+          try {
+            & "$launch4jDir\launch4j\launch4j.exe" $configFile -ErrorAction Stop
+          } catch {
+            Write-Error "❌ Launch4j failed: $_"
+            exit 1
+          }
 
       - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
