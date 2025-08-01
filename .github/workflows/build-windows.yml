@@ -48,7 +48,7 @@ jobs:
             --input build/libs `
             --main-jar $jarFile `
             --main-class MainKt `
-            --app-version $version
+            --app-version $version `
             --vendor "zeyan-du"
           Compress-Archive -Path SuperShare -DestinationPath SuperShare-windows-portable.zip
 
