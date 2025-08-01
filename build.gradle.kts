@@ -42,6 +42,10 @@ tasks.test {
   useJUnitPlatform()
 }
 
+tasks.build {
+  dependsOn(tasks.shadowJar)
+}
+
 kotlin {
   jvmToolchain(21)
 }
@@ -57,10 +61,13 @@ compose.desktop {
   }
 }
 
-tasks.shadowJar {
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
   archiveBaseName.set("super-share")
-  archiveClassifier.set("fat")
+  archiveClassifier.set("")
+
   manifest {
-    attributes["Main-Class"] = "MainKt"
+    attributes(
+      "Main-Class" to "MainKt",
+    )
   }
 }

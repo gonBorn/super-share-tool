@@ -25,12 +25,12 @@ suspend fun broadcast(message: String) {
   }
 }
 
-fun startServer() {
+fun startServer(port: Int) {
   val baseDir = File(".").absoluteFile
   val ipAddress = getLocalIpAddress()
-  println("Server running at http://$ipAddress:8080")
+  println("Server running at http://$ipAddress:$port")
 
-  embeddedServer(Netty, port = 8080) {
+  embeddedServer(Netty, port) {
     install(WebSockets)
 
     routing {

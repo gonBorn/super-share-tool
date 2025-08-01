@@ -21,12 +21,15 @@ import java.awt.image.BufferedImage
 
 @Composable
 @Preview
-fun mainWindow(onCloseRequest: () -> Unit) {
+fun mainWindow(
+  port: Int,
+  onCloseRequest: () -> Unit,
+) {
   val messages by WebSocketClient.messages.collectAsState()
   var chatMessage by remember { mutableStateOf("") }
 
   LaunchedEffect(Unit) {
-    WebSocketClient.start()
+    WebSocketClient.start(port)
   }
 
   Window(onCloseRequest = onCloseRequest, title = "Super Share") {
@@ -39,11 +42,11 @@ fun mainWindow(onCloseRequest: () -> Unit) {
         ) {
           val ipAddress = remember { getLocalIpAddress() }
           Text("Server running at:", style = MaterialTheme.typography.h6)
-          Text("http://$ipAddress:8080", style = MaterialTheme.typography.h5)
+          Text("http://$ipAddress:$port", style = MaterialTheme.typography.h5)
 
           Spacer(modifier = Modifier.height(16.dp))
 
-          val qrCodeBitmap = remember { generateQRCode("http://$ipAddress:8080") }
+          val qrCodeBitmap = remember { generateQRCode("http://$ipAddress:$port") }
           Image(
             bitmap = qrCodeBitmap,
             contentDescription = "QR Code",

@@ -5,13 +5,14 @@ import kotlinx.coroutines.launch
 import server.startServer
 import ui.mainWindow
 
-fun main() =
+fun main(args: Array<String>) =
   application {
     // Start the Ktor server in a background coroutine
+    val port = args.getOrNull(0)?.toInt() ?: 8080
     CoroutineScope(Dispatchers.IO).launch {
-      startServer()
+      startServer(port)
     }
 
     // Launch the Compose UI
-    mainWindow(::exitApplication)
+    mainWindow(port, ::exitApplication)
   }

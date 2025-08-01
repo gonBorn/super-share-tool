@@ -18,7 +18,7 @@ object WebSocketClient {
 
   private var session: DefaultClientWebSocketSession? = null
 
-  fun start() {
+  fun start(port: Int) {
     CoroutineScope(Dispatchers.IO).launch {
       try {
         val client =
@@ -26,7 +26,7 @@ object WebSocketClient {
             install(WebSockets)
           }
         val ipAddress = getLocalIpAddress()
-        client.webSocket(method = HttpMethod.Get, host = ipAddress, port = 8080, path = "/ws") {
+        client.webSocket(method = HttpMethod.Get, host = ipAddress, port = port, path = "/ws") {
           session = this
           for (frame in incoming) {
             if (frame is Frame.Text) {

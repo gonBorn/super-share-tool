@@ -4,11 +4,24 @@
 
 Super Share is a simple file sharing server written in Kotlin.
 
-It allows you to share files over HTTP, making it easy to transfer files between devices on the same network.
+It allows you to share files over HTTP, making it easy to download, upload files and even send messages between devices
+on the same network.
 
-![super-share](./assets/showcase.png)
+## User Handbook
 
-## Commands for development
+1. Download the **jar** file, **exe** or **dmg** from
+   the [release page](https://github.com/gonBorn/super-share-tool/releases)
+
+2. Run it no matter on Mac or Windows laptop, you can see the window like this:
+   <img src="./assets/showcase-2.png" alt="super-share" width="300"/>
+
+3. Type the ip address or scan the QR code to access the super-share web interface, where you can upload and download
+   files.
+   <img src="./assets/showcase.png" alt="super-share" width="300"/>
+
+## Developer Handbook
+
+Make sure you have Java 21 or higher installed on your machine.
 
 ```bash
 ./gradlew run
@@ -18,23 +31,18 @@ It allows you to share files over HTTP, making it easy to transfer files between
 ./gradlew ktlintFormat
 ```
 
-## How to get the application
+```bash
+./gradlew shadowJar
+```
 
-1. Build by yourself by running and find super-share-1.0.0.jar in `build/libs` directory
-    ```bash
-    ./gradlew shadowJar
-    ```
+Run the jar file with the following command in any directory that you want to share:
 
-2. Download the jar file, exe or dmg from the [release page](https://github.com/gonBorn/super-share-tool/releases)
+ ```bash
+ java -jar super-share-1.0.0.jar
+ ```
 
-## How to use it
+or you can specify the port number to run the server on:
 
-1. Make sure you have Java 21 or higher installed on your machine.
-2. Run the jar file with the following command in any directory that you want to share:
-    ```bash
-    java -jar super-share-1.0.0.jar
-    ```
-   or you can specify the port number to run the server on:
-    ```bash
-    java -jar /path/to/super-share-1.0.0.jar 8081
-    ```
+ ```bash
+ java -jar super-share-1.0.0.jar 8081
+ ```
