@@ -39,7 +39,7 @@ application {
 }
 
 tasks.shadowJar {
-  archiveBaseName.set("super-share")
-  archiveClassifier.set("")
-  archiveVersion.set("1.0.0")
+    archiveBaseName.set("super-share")
+    archiveClassifier.set("")
+    archiveVersion.set("1.0.0")
 }

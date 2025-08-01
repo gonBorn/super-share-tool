@@ -49,12 +49,11 @@ jobs:
         shell: pwsh
         run: |
           $commit = "${{ github.sha }}".Substring(0, 7)
-          $jar = Get-ChildItem app\*.jar | Select-Object -First 1
           jpackage --type exe `
-            --name MyApp `
-            --input app `
-            --main-jar $($jar.Name) `
-            --main-class your.main.ClassKt `
+            --name SuperShare `
+            --input build/libs `
+            --main-jar super-share-*.jar `
+            --main-class MainKt `
             --win-dir-chooser `
             --win-menu `
             --win-shortcut `
@@ -64,4 +63,23 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: my-windows-exe
-          path: MyApp-*.exe
+          path: SuperShare-*.exe
+
+      - name: Package .dmg with jpackage
+        shell: bash
+        run: |
+          COMMIT_HASH=$(echo "${GITHUB_SHA}" | cut -c1-7)
+          jpackage \
+          --type dmg \
+          --name SuperShare \
+          --input build/libs \
+          --main-jar super-share-*.jar \
+          --main-class MainKt \
+          --app-version "$COMMIT_HASH" \
+          --icon your-icon.icns
+
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-macos-dmg
+          path: SuperShare-*.dmg
