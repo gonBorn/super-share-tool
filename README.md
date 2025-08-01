@@ -18,7 +18,7 @@ It allows you to share files over HTTP, making it easy to transfer files between
 ./gradlew ktlintFormat
 ```
 
-### How to get the jar
+## How to get the jar
 
 1. Build by yourself by running and find super-share-1.0.0.jar in `build/libs` directory
     ```bash
@@ -27,7 +27,7 @@ It allows you to share files over HTTP, making it easy to transfer files between
 
 2. Download the jar file from the [release page](https://github.com/gonBorn/super-share-tool/releases)
 
-### How to use it
+## How to use it
 
 1. Make sure you have Java 21 or higher installed on your machine.
 2. Run the jar file with the following command in any directory that you want to share:

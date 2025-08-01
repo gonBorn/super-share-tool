@@ -1,4 +1,5 @@
-name: Kotlin CI with JDK 21 + shadowJar + jpackage
+# Temp
+name: Kotlin CI with Gradle + JDK 21 + Cache + EXE
 
 on:
   push:
@@ -6,19 +7,21 @@ on:
   pull_request:
     branches: [ main ]
 
+x-common-steps: &common-steps
+  - name: Checkout source code
+    uses: actions/checkout@v4
+
+  - name: Set up JDK 21
+    uses: actions/setup-java@v4
+    with:
+      distribution: 'temurin'
+      java-version: '21'
+
 jobs:
-  build-and-package:
-    runs-on: windows-latest
-
+  build:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+      - <<: *common-steps
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
@@ -45,12 +48,24 @@ jobs:
           name: app-shadow-jar
           path: build/libs/*.jar
 
-      - name: Package .exe with jpackage
+  build-exe:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - <<: *common-steps
+
+      - name: Download shadowJar artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-shadow-jar
+          path: app
+
+      - name: Generate Windows .exe using jpackage
         run: |
           jpackage ^
             --type exe ^
             --name MyApp ^
-            --input build\libs ^
+            --input app ^
             --main-jar your-app-all.jar ^
             --main-class your.main.ClassKt ^
             --win-dir-chooser ^
