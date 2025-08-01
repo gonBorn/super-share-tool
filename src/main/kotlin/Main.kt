@@ -103,7 +103,7 @@ private suspend fun listDirectory(
             }
           }
           tbody {
-            dir.listFiles()?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))?.forEach { file ->
+            dir.listFiles()?.filter { !it.isHidden }?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))?.forEach { file ->
               tr {
                 td {
                   if (file.isDirectory) {

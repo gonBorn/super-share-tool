@@ -4,6 +4,7 @@ plugins {
   kotlin("jvm") version "2.1.20"
   id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
   application
+  id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "io.github.gonborn"
@@ -35,4 +36,10 @@ kotlin {
 
 application {
   mainClass.set("MainKt")
+}
+
+tasks.shadowJar {
+  archiveBaseName.set("super-share")
+  archiveClassifier.set("")
+  archiveVersion.set("1.0.0")
 }
