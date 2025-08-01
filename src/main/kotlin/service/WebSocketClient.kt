@@ -43,7 +43,8 @@ object WebSocketClient {
 
   fun sendMessage(message: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      session?.send(Frame.Text("${LocalDateTime.now()}: $message"))
+      val timestamp = LocalDateTime.now()
+      session?.send(Frame.Text("CHAT:[$timestamp] $message"))
     }
   }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.rememberWindowState
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import service.WebSocketClient
@@ -32,64 +34,126 @@ fun mainWindow(
     WebSocketClient.start(port)
   }
 
-  Window(onCloseRequest = onCloseRequest, title = "Super Share") {
+  Window(
+    onCloseRequest = onCloseRequest,
+    title = "Super Share",
+    state = rememberWindowState(width = 1200.dp, height = 800.dp),
+    // resize the window
+  ) {
     MaterialTheme {
-      Row(modifier = Modifier.fillMaxSize()) {
-        // Left Panel: Info and QR Code
-        Column(
-          modifier = Modifier.weight(1f).padding(16.dp),
-          horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-          val ipAddress = remember { getLocalIpAddress() }
-          Text("Server running at:", style = MaterialTheme.typography.h6)
-          Text("http://$ipAddress:$port", style = MaterialTheme.typography.h5)
+      SelectionContainer {
+        Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+          // Left Panel: Info and QR Code
+          Card(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            elevation = 4.dp,
+          ) {
+            Column(
+              modifier = Modifier.padding(16.dp).fillMaxSize(),
+              // Remove horizontalAlignment = Alignment.CenterHorizontally
+              verticalArrangement = Arrangement.Center,
+            ) {
+              val ipAddress = remember { getLocalIpAddress() }
+              Text(
+                "Server running at:",
+                style = MaterialTheme.typography.h4,
+                // Larger font
+                color = MaterialTheme.colors.primary,
+                // Use theme primary color
+                modifier = Modifier.padding(bottom = 12.dp),
+                // Add spacing below
+              )
+              Text("http://$ipAddress:$port", style = MaterialTheme.typography.h5)
 
-          Spacer(modifier = Modifier.height(16.dp))
+              Spacer(modifier = Modifier.height(16.dp))
 
-          val qrCodeBitmap = remember { generateQRCode("http://$ipAddress:$port") }
-          Image(
-            bitmap = qrCodeBitmap,
-            contentDescription = "QR Code",
-            modifier = Modifier.size(200.dp),
-          )
-        }
-
-        // Right Panel: Logs and Chat
-        Column(modifier = Modifier.weight(2f).padding(16.dp)) {
-          // Event Log
-          Text("Event Log", style = MaterialTheme.typography.h6)
-          LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) {
-            items(messages.filter { !it.startsWith("CHAT:") }) { msg ->
-              Text(msg, style = MaterialTheme.typography.body2)
+              val qrCodeBitmap = remember(ipAddress, port) { generateQRCode("http://$ipAddress:$port") }
+              Image(
+                bitmap = qrCodeBitmap,
+                contentDescription = "QR Code",
+                modifier = Modifier.size(200.dp),
+              )
             }
           }
 
-          Spacer(modifier = Modifier.height(16.dp))
+          Spacer(modifier = Modifier.width(16.dp))
 
-          // Chat
-          Text("Chat", style = MaterialTheme.typography.h6)
-          LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) {
-            items(messages.filter { it.startsWith("CHAT:") }) { msg ->
-              Text(msg.removePrefix("CHAT: "), style = MaterialTheme.typography.body1)
-            }
-          }
-
-          // Chat Input
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-              value = chatMessage,
-              onValueChange = { chatMessage = it },
-              modifier = Modifier.weight(1f),
-              label = { Text("Enter message") },
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-              if (chatMessage.isNotBlank()) {
-                WebSocketClient.sendMessage(chatMessage)
-                chatMessage = ""
+          // Right Panel: Logs and Chat
+          Card(
+            modifier = Modifier.weight(2f).fillMaxHeight(),
+            elevation = 4.dp,
+          ) {
+            Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+              // Event Log
+              Text(
+                "Event Log",
+                style = MaterialTheme.typography.h4,
+                color = MaterialTheme.colors.primary,
+              )
+              LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) {
+                items(messages.filter { !it.startsWith("CHAT:") }) { msg ->
+                  Text(msg, style = MaterialTheme.typography.body2)
+                }
               }
-            }) {
-              Text("Send")
+
+              Spacer(modifier = Modifier.height(16.dp))
+
+              // Chat
+              Text(
+                "Chat",
+                style = MaterialTheme.typography.h4,
+                color = MaterialTheme.colors.primary,
+              )
+              LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) {
+                items(messages.filter { it.startsWith("CHAT:") }) { msg ->
+                  val fullMessage = msg.removePrefix("CHAT: ")
+                  val timestampEndIndex = fullMessage.indexOf("]")
+
+                  if (timestampEndIndex != -1) {
+                    val timestamp = fullMessage.substring(0, timestampEndIndex + 1)
+                    val content = fullMessage.substring(timestampEndIndex + 1).trimStart()
+
+                    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+                      // Add padding to the bottom of each message
+                      Text(
+                        timestamp,
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.primary,
+                      )
+                      Text(
+                        content,
+                        style = MaterialTheme.typography.body1,
+                      )
+                    }
+                  } else {
+                    // Fallback if message format is unexpected
+                    Text(fullMessage, style = MaterialTheme.typography.body1)
+                  }
+                }
+              }
+
+              // Chat Input
+              Row(
+                verticalAlignment = Alignment.CenterVertically,
+              ) {
+                OutlinedTextField(
+                  value = chatMessage,
+                  onValueChange = { chatMessage = it },
+                  modifier = Modifier.weight(1f),
+                  label = { Text("Enter message") },
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                  onClick = {
+                    if (chatMessage.isNotBlank()) {
+                      WebSocketClient.sendMessage(chatMessage)
+                      chatMessage = ""
+                    }
+                  },
+                ) {
+                  Text("Send")
+                }
+              }
             }
           }
         }

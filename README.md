@@ -21,6 +21,13 @@ on the same network.
 
    <img src="./assets/showcase.png" alt="super-share" width="300"/>
 
+### MacOS Installation
+- Question: Apple could not verify free of malware that may harm your Mac or compromise your privacy.
+- Answer: Run the following command in the terminal to remove the quarantine attribute:
+   ```bash
+   xattr -d com.apple.quarantine /Applications/SuperShare.app
+   ```
+
 ## Developer Handbook
 
 Make sure you have Java 21 or higher installed on your machine.
