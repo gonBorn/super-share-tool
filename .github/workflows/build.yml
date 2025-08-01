@@ -46,17 +46,19 @@ jobs:
           path: build/libs/*.jar
 
       - name: Package .exe with jpackage
+        shell: pwsh
         run: |
-          jpackage ^
-            --type exe ^
-            --name MyApp ^
-            --input build\libs ^
-            --main-jar your-app-all.jar ^
-            --main-class your.main.ClassKt ^
-            --win-dir-chooser ^
-            --win-menu ^
-            --win-shortcut ^
-            --app-version 1.0.0
+          $commit = "${{ github.sha }}".Substring(0, 7)
+          $jar = Get-ChildItem app\*.jar | Select-Object -First 1
+          jpackage --type exe `
+            --name MyApp `
+            --input app `
+            --main-jar $($jar.Name) `
+            --main-class your.main.ClassKt `
+            --win-dir-chooser `
+            --win-menu `
+            --win-shortcut `
+            --app-version $commit
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
