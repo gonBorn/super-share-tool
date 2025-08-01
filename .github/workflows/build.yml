@@ -41,66 +41,54 @@ jobs:
       - name: Build shadowJar
         run: ./gradlew shadowJar
 
-      - name: Create Windows EXE with Launch4j
+      - name: Package portable app with jpackage (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $ErrorActionPreference = "Stop"
-
-          # Define variables
           $version = "1.0.${{ github.run_number }}"
-          $jarFile = Get-ChildItem -Path build/libs -Filter 'super-share-*.jar' | Select-Object -First 1
-          $jarPath = $jarFile.FullName
-          $exeName = "SuperShare.exe"
-          $launch4jDir = "$env:USERPROFILE\launch4j"
-          $configFile = "launch4j-config.xml"
+          $jarFile = (Get-ChildItem -Path build/libs -Filter 'super-share-*.jar').Name
 
-          # Download Launch4j
-          Invoke-WebRequest -Uri "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download" -OutFile "launch4j.zip"
-          Expand-Archive -Path "launch4j.zip" -DestinationPath "$launch4jDir"
+          jpackage --type app-image `
+            --name SuperShare `
+            --input build/libs `
+            --main-jar $jarFile `
+            --main-class MainKt `
+            --app-version $version `
+            --dest build/dist `
+            --install-dir SuperShare `
+            --add-modules java.base,java.desktop `
+            --vendor "zeyan-du"
 
-          # Create config file for Launch4j
-          Set-Content -Path $configFile -Value @"
-          <launch4jConfig>
-            <dontWrapJar>false</dontWrapJar>
-            <headerType>gui</headerType>
-            <jar>$jarPath</jar>
-            <outfile>build/dist/$exeName</outfile>
-            <errTitle></errTitle>
-            <cmdLine></cmdLine>
-            <chdir>.</chdir>
-            <priority>normal</priority>
-            <downloadUrl>https://java.com/download</downloadUrl>
-            <supportUrl></supportUrl>
-            <customProcName>false</customProcName>
-            <stayAlive>false</stayAlive>
-            <restartOnCrash>false</restartOnCrash>
-            <manifest></manifest>
-            <icon>assets/file-transformer.ico</icon>
-            <versionInfo>
-              <fileVersion>$version</fileVersion>
-              <txtFileVersion>$version</txtFileVersion>
-              <productVersion>$version</productVersion>
-              <txtProductVersion>$version</txtProductVersion>
-              <fileDescription>SuperShare App</fileDescription>
-              <productName>SuperShare</productName>
-              <companyName>zeyan-du</companyName>
-              <internalName>SuperShare</internalName>
-              <originalFilename>$exeName</originalFilename>
-            </versionInfo>
-          </launch4jConfig>
-          "@
+          # Copy extra resources into the output directory
+          Copy-Item -Path "app\cfg" -Destination "build\dist\SuperShare\cfg" -Recurse -Force
+          Copy-Item -Path "app\runtime" -Destination "build\dist\SuperShare\runtime" -Recurse -Force
 
-          # Run Launch4j
-          & "$launch4jDir\launch4j\launch4j.exe" $configFile
+          Compress-Archive -Path (Get-ChildItem -Path build\dist\SuperShare) -DestinationPath SuperShare-windows-portable.zip
 
+      - name: Verify resources included in app image (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $appPath = "build\dist\SuperShare"
+          if (-Not (Test-Path "$appPath\cfg")) {
+            Write-Error "❌ cfg not found"
+            exit 1
+          } else {
+            Write-Host "cfg found ✅"
+          }
+          if (-Not (Test-Path "$appPath\runtime")) {
+            Write-Error "❌ runtime not found"
+            exit 1
+          } else {
+            Write-Host "runtime found ✅"
+          }
 
-      - name: Upload EXE artifact (Windows)
+      - name: Upload portable app artifact (Windows)
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
         with:
-          name: super-share-windows-exe-${{ github.run_number }}
-          path: build/dist/SuperShare.exe
+          name: super-share-windows-portable-${{ github.run_number }}
+          path: SuperShare-windows-portable.zip
 
       - name: Package .dmg with jpackage (macOS)
         if: runner.os == 'macOS'
