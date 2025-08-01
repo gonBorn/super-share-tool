@@ -1,4 +1,4 @@
-name: Kotlin CI with JDK 21 + shadowJar + jpackage
+name: Kotlin CI with JDK 21 + shadowJar + jpackage + dmg
 
 on:
   push:
@@ -78,7 +78,7 @@ jobs:
           --main-jar "$JAR_FILE" \
           --main-class MainKt \
           --app-version "$APP_VERSION" \
-          --icon your-icon.icns
+          --icon assets/file-transformer.icns
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@v4

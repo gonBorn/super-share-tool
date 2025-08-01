@@ -6,7 +6,7 @@ Super Share is a simple file sharing server written in Kotlin.
 
 It allows you to share files over HTTP, making it easy to transfer files between devices on the same network.
 
-![super-share](./assets/showcase1.png)
+![super-share](./assets/showcase.png)
 
 ## Commands for development
 
@@ -18,14 +18,14 @@ It allows you to share files over HTTP, making it easy to transfer files between
 ./gradlew ktlintFormat
 ```
 
-## How to get the jar
+## How to get the application
 
 1. Build by yourself by running and find super-share-1.0.0.jar in `build/libs` directory
     ```bash
     ./gradlew shadowJar
     ```
 
-2. Download the jar file from the [release page](https://github.com/gonBorn/super-share-tool/releases)
+2. Download the jar file, exe or dmg from the [release page](https://github.com/gonBorn/super-share-tool/releases)
 
 ## How to use it
 
