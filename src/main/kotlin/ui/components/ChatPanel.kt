@@ -1,10 +1,12 @@
 package ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -59,26 +61,40 @@ fun chatPanel(
           .padding(vertical = 8.dp),
     ) {
       items(messages) { msg ->
-        val match = Regex("""^\[(.*?)\] \[(.*?)\]: (.*)$""").find(msg)
+        val match = Regex("""(?s)^\[(.*?)\] \[(.*?)\]: (.*)$""").find(msg)
         if (match != null) {
           val (timestampStr, ip, message) = match.destructured
           val date = LocalDateTime.parse(timestampStr)
           val formattedTime = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
 
           Column(modifier = Modifier.padding(bottom = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Text(
+                formattedTime,
+                style =
+                  androidx
+                    .compose
+                    .material
+                    .MaterialTheme
+                    .typography
+                    .caption,
+                color = Color.Gray,
+              )
+              Spacer(modifier = Modifier.width(8.dp))
+              Text(
+                "[$ip]:",
+                style =
+                  androidx
+                    .compose
+                    .material
+                    .MaterialTheme
+                    .typography
+                    .caption,
+                color = ipToColor(ip),
+              )
+            }
             Text(
-              formattedTime,
-              style =
-                androidx
-                  .compose
-                  .material
-                  .MaterialTheme
-                  .typography
-                  .caption,
-              color = Color.Gray,
-            )
-            Text(
-              "[$ip]: $message",
+              message,
               style =
                 androidx
                   .compose
@@ -97,11 +113,16 @@ fun chatPanel(
     Row(
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      OutlinedTextField(
+      BasicTextField(
         value = chatMessage,
         onValueChange = { chatMessage = it },
-        modifier = Modifier.weight(1f),
-        label = { Text("Enter message") },
+        modifier =
+          Modifier
+            .weight(1f)
+            .height(100.dp)
+            .border(1.dp, MaterialTheme.colors.primary)
+            .padding(8.dp),
+        singleLine = false,
       )
       Spacer(modifier = Modifier.width(8.dp))
       Button(

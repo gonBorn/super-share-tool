@@ -124,8 +124,9 @@ suspend fun ApplicationCall.respondWithHtml(
                     "height: 250px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; font-size: 0.9em;"
                 }
                 div(classes = "input-group") {
-                  input(type = InputType.text, classes = "form-control") {
+                  textArea(classes = "form-control") {
                     id = "message-input"
+                    rows = "3"
                   }
                   div(classes = "input-group-append") {
                     button(classes = "btn btn-primary") {

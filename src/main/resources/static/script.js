@@ -37,16 +37,26 @@ ws.onmessage = function(event) {
 
             const messageContainer = document.createElement("div");
             
-            const timeElement = document.createElement("div");
-            timeElement.textContent = formattedTime;
+            const infoContainer = document.createElement("div");
+            
+            const timeElement = document.createElement("span");
+            timeElement.textContent = formattedTime + " ";
             timeElement.style.fontSize = "0.8em";
             timeElement.style.color = "#888";
             
+            const ipElement = document.createElement("span");
+            ipElement.textContent = "[" + ip + "]:";
+            ipElement.style.color = ipToColor(ip);
+            ipElement.style.fontSize = "0.8em";
+
             const messageElement = document.createElement("div");
-            messageElement.textContent = "[" + ip + "]: " + message;
+            messageElement.textContent = message;
             messageElement.style.color = ipToColor(ip);
 
-            messageContainer.appendChild(timeElement);
+            infoContainer.appendChild(timeElement);
+            infoContainer.appendChild(ipElement);
+
+            messageContainer.appendChild(infoContainer);
             messageContainer.appendChild(messageElement);
             chatMessages.appendChild(messageContainer);
             chatMessages.scrollTop = chatMessages.scrollHeight;

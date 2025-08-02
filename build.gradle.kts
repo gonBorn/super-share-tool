@@ -75,5 +75,6 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
       "Main-Class" to "MainKt",
     )
   }
+  from(sourceSets.main.get().output)
   from(sourceSets.main.get().resources)
 }
