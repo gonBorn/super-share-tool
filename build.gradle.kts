@@ -65,11 +65,10 @@ compose.desktop {
 launch4j {
     mainClassName = "MainKt"
     jar = tasks.shadowJar.get().archiveFile.get().asFile.absolutePath
-    outfile = "${project.buildDir}/dist/SuperShare.exe"
+    outfile = "dist/SuperShare.exe"
     icon = "assets/file-share.ico"
     bundledJrePath = "build/jre"
     jreMinVersion = "21"
-    jreMaxVersion = "21"
     headerType = "gui"
     stayAlive = false
     chdir = "."
