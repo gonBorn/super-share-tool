@@ -25,8 +25,10 @@ suspend fun broadcast(message: String) {
   }
 }
 
-fun startServer(port: Int) {
-  val baseDir = File(".").absoluteFile
+fun startServer(
+  port: Int,
+  baseDir: File,
+) {
   val ipAddress = getLocalIpAddress()
   println("Server running at http://$ipAddress:$port")
 
@@ -35,7 +37,7 @@ fun startServer(port: Int) {
 
     routing {
       get("/") {
-        listDirectory(call, baseDir)
+        listDirectory(call, baseDir, baseDir)
       }
 
       post("/upload") {
@@ -60,7 +62,7 @@ fun startServer(port: Int) {
         val path = call.parameters.getAll("path")?.joinToString(File.separator) ?: ""
         val requestedFile = File(baseDir, path)
         if (requestedFile.isDirectory) {
-          listDirectory(call, requestedFile)
+          listDirectory(call, requestedFile, baseDir)
         } else {
           call.respond(HttpStatusCode.NotFound)
         }
@@ -123,8 +125,8 @@ fun startServer(port: Int) {
 private suspend fun listDirectory(
   call: ApplicationCall,
   dir: File,
+  baseDir: File,
 ) {
-  val baseDir = File(".").absoluteFile
   val relativePath = dir.relativeTo(baseDir).path
   call.respondHtml {
     head {

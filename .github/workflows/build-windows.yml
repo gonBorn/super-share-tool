@@ -38,11 +38,29 @@ jobs:
       - name: Build shadowJar
         run: ./gradlew shadowJar
 
-      - name: Package .exe with jpackage (Windows)
-        run: ./gradlew packageExe
+      - name: Package portable app with jpackage (Windows)
+        shell: bash
+        run: |
+          APP_VERSION="1.0.${{ github.run_number }}"
+          JAR_FILE=$(basename $(find build/libs -name "super-share-*.jar"))
+          jpackage \
+          --type app-image \
+          --name SuperShare \
+          --input build/libs \
+          --main-jar "$JAR_FILE" \
+          --main-class MainKt \
+          --app-version "$APP_VERSION" \
+          --vendor "zeyan" \
+          --icon assets/file-share.ico \
+          --dest build/dist
 
-      - name: Upload EXE artifact (Windows)
+      - name: Zip the portable app
+        shell: pwsh
+        run: |
+          Compress-Archive -Path build/dist/SuperShare -DestinationPath build/dist/SuperShare-windows-portable.zip
+
+      - name: Upload portable app artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
-          name: super-share-windows-exe-${{ github.run_number }}
-          path: build/compose/binaries/main/exe/SuperShare-1.0.0.exe
+          name: super-share-windows-portable-${{ github.run_number }}
+          path: build/dist/SuperShare-windows-portable.zip

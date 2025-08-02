@@ -54,9 +54,10 @@ compose.desktop {
   application {
     mainClass = "MainKt"
     nativeDistributions {
-      targetFormats(TargetFormat.Dmg, TargetFormat.Deb, TargetFormat.Exe)
+      targetFormats(TargetFormat.Dmg, TargetFormat.Deb)
       packageName = "SuperShare"
       packageVersion = "1.0.0"
+      vendor = "zeyan"
 
       windows {
         iconFile.set(project.file("assets/file-share.ico"))

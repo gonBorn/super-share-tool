@@ -20,11 +20,14 @@ import com.google.zxing.qrcode.QRCodeWriter
 import service.WebSocketClient
 import utils.IpAddressUtil.getLocalIpAddress
 import java.awt.image.BufferedImage
+import javax.swing.JFileChooser
 
 @Composable
 @Preview
 fun mainWindow(
   port: Int,
+  sharedDirectory: String,
+  onDirectorySelected: (String) -> Unit,
   onCloseRequest: () -> Unit,
 ) {
   val messages by WebSocketClient.messages.collectAsState()
@@ -38,7 +41,6 @@ fun mainWindow(
     onCloseRequest = onCloseRequest,
     title = "Super Share",
     state = rememberWindowState(width = 1200.dp, height = 800.dp),
-    // resize the window
   ) {
     MaterialTheme {
       SelectionContainer {
@@ -50,18 +52,14 @@ fun mainWindow(
           ) {
             Column(
               modifier = Modifier.padding(16.dp).fillMaxSize(),
-              // Remove horizontalAlignment = Alignment.CenterHorizontally
               verticalArrangement = Arrangement.Center,
             ) {
               val ipAddress = remember { getLocalIpAddress() }
               Text(
                 "Server running at:",
                 style = MaterialTheme.typography.h4,
-                // Larger font
                 color = MaterialTheme.colors.primary,
-                // Use theme primary color
                 modifier = Modifier.padding(bottom = 12.dp),
-                // Add spacing below
               )
               Text("http://$ipAddress:$port", style = MaterialTheme.typography.h5)
 
@@ -73,6 +71,34 @@ fun mainWindow(
                 contentDescription = "QR Code",
                 modifier = Modifier.size(200.dp),
               )
+
+              Spacer(modifier = Modifier.height(16.dp))
+
+              Text(
+                "Sharing Directory:",
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(bottom = 8.dp),
+              )
+              OutlinedTextField(
+                value = sharedDirectory,
+                onValueChange = { },
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+              )
+              Spacer(modifier = Modifier.height(8.dp))
+              Button(
+                onClick = {
+                  val chooser = JFileChooser()
+                  chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                  val result = chooser.showOpenDialog(null)
+                  if (result == JFileChooser.APPROVE_OPTION) {
+                    onDirectorySelected(chooser.selectedFile.absolutePath)
+                  }
+                },
+                modifier = Modifier.fillMaxWidth(),
+              ) {
+                Text("Select Folder")
+              }
             }
           }
 
@@ -114,7 +140,6 @@ fun mainWindow(
                     val content = fullMessage.substring(timestampEndIndex + 1).trimStart()
 
                     Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                      // Add padding to the bottom of each message
                       Text(
                         timestamp,
                         style = MaterialTheme.typography.caption,
@@ -126,7 +151,6 @@ fun mainWindow(
                       )
                     }
                   } else {
-                    // Fallback if message format is unexpected
                     Text(fullMessage, style = MaterialTheme.typography.body1)
                   }
                 }
