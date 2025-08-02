@@ -38,51 +38,11 @@ jobs:
       - name: Build shadowJar
         run: ./gradlew shadowJar
 
-      - name: Create Windows EXE with Launch4j
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-
-          # Define variables
-          $version = "1.0.${{ github.run_number }}"
-          $jarFile = Get-ChildItem -Path build/libs -Filter 'super-share-*.jar' | Select-Object -First 1
-          $jarPath = $jarFile.FullName
-          $exeName = "SuperShare.exe"
-          $launch4jDir = "$env:USERPROFILE\launch4j"
-          $configFile = "launch4j-config.xml"
-          $jreDir = "build/jre"
-
-          # Create custom JRE using jlink
-          $javaHome = "${env:JAVA_HOME}"
-          try {
-            & "$javaHome/bin/jlink.exe" `
-              --output $jreDir `
-              --add-modules java.base,java.desktop `
-              --strip-debug `
-              --no-header-files `
-              --no-man-pages
-          } catch {
-            Write-Error "❌ jlink failed: $_"
-            exit 1
-          }
-
-          # Download Launch4j
-          Invoke-WebRequest -Uri "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download" -OutFile "launch4j.zip"
-          Expand-Archive -Path "launch4j.zip" -DestinationPath "$launch4jDir"
-
-          # Copy config file for Launch4j
-          Copy-Item config-launch4j.xml $configFile
-
-          # Run Launch4j
-          try {
-            & "$launch4jDir\launch4j\launch4j.exe" $configFile
-          } catch {
-            Write-Error "❌ Launch4j failed: $_"
-            exit 1
-          }
+      - name: Package .exe with Launch4j (Windows)
+        run: ./gradlew launch4j
 
       - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
-          name: super-share-windows-exe
+          name: super-share-windows-exe-${{ github.run_number }}
           path: build/dist/SuperShare.exe

@@ -8,6 +8,7 @@ plugins {
   id("org.jetbrains.compose") version "1.6.11"
   id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
   id("com.github.johnrengelman.shadow") version "8.1.1"
+  id("edu.sc.seis.launch4j") version "2.5.0"
 }
 
 group = "io.github.gonborn"
@@ -54,11 +55,25 @@ compose.desktop {
   application {
     mainClass = "MainKt"
     nativeDistributions {
-      targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+      targetFormats(TargetFormat.Dmg, TargetFormat.Deb) // Keep DMG for macOS, remove MSI for Windows
       packageName = "SuperShare"
       packageVersion = "1.0.0"
     }
   }
+}
+
+launch4j {
+    mainClassName = "MainKt"
+    jar = tasks.shadowJar.get().archiveFile.get().asFile.absolutePath
+    outfile = "${project.buildDir}/dist/SuperShare.exe"
+    icon = "assets/file-share.ico"
+    bundledJrePath = "build/jre"
+    jreMinVersion = "21"
+    jreMaxVersion = "21"
+    headerType = "gui"
+    stayAlive = false
+    chdir = "."
+    dontWrapJar = false
 }
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
