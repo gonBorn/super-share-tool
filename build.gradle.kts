@@ -60,7 +60,7 @@ compose.desktop {
       vendor = "zeyan"
 
       windows {
-        iconFile.set(project.file("assets/file-share.ico"))
+        iconFile.set(project.file("src/main/resources/file-share.ico"))
       }
     }
   }
@@ -75,4 +75,5 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
       "Main-Class" to "MainKt",
     )
   }
+  from(sourceSets.main.get().resources)
 }
