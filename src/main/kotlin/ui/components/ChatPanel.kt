@@ -135,17 +135,26 @@ fun chatPanel(
     Row(
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      BasicTextField(
-        value = chatMessage,
-        onValueChange = { chatMessage = it },
-        modifier =
-          Modifier
-            .weight(1f)
-            .height(100.dp)
-            .border(1.dp, MaterialTheme.colors.primary)
-            .padding(8.dp),
-        singleLine = false,
-      )
+      Box(modifier = Modifier.weight(1f)) {
+        BasicTextField(
+          value = chatMessage,
+          onValueChange = { chatMessage = it },
+          modifier =
+            Modifier
+              .height(100.dp)
+              .fillMaxWidth()
+              .border(1.dp, MaterialTheme.colors.primary)
+              .padding(8.dp),
+          singleLine = false,
+        )
+        if (chatMessage.isEmpty()) {
+          Text(
+            text = "Type here...",
+            modifier = Modifier.padding(8.dp),
+            color = Color.Gray,
+          )
+        }
+      }
       Spacer(modifier = Modifier.width(8.dp))
       Button(
         onClick = {

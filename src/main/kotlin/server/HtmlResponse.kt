@@ -127,6 +127,7 @@ suspend fun ApplicationCall.respondWithHtml(
                   textArea(classes = "form-control") {
                     id = "message-input"
                     rows = "3"
+                    placeholder = "Type here..."
                   }
                   div(classes = "input-group-append") {
                     button(classes = "btn btn-primary") {
