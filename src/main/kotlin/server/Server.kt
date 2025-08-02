@@ -181,8 +181,11 @@ private suspend fun listDirectory(
             }
 
             form(action = "/upload", method = FormMethod.post, encType = FormEncType.multipartFormData) {
+              id = "upload-form"
               div(classes = "form-group") {
-                input(type = InputType.file, name = "file", classes = "form-control-file")
+                input(type = InputType.file, name = "file", classes = "form-control-file") {
+                  id = "file-input"
+                }
               }
               button(type = ButtonType.submit, classes = "btn btn-primary") { +"Upload File" }
             }
@@ -332,6 +335,16 @@ private suspend fun listDirectory(
             messageInput.addEventListener("keyup", function(event) {
                 if (event.key === "Enter") {
                     sendButton.click();
+                }
+            });
+
+            const uploadForm = document.getElementById("upload-form");
+            const fileInput = document.getElementById("file-input");
+
+            uploadForm.addEventListener("submit", function(event) {
+                if (fileInput.files.length === 0) {
+                    alert("Please select a file to upload.");
+                    event.preventDefault();
                 }
             });
           """
