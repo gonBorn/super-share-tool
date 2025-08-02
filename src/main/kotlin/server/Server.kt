@@ -67,7 +67,13 @@ fun startServer(port: Int) {
           val baseDir = AppState.baseDir.value
           val requestedFile = File(baseDir, path)
           if (requestedFile.isDirectory) {
-            listDirectory(call, requestedFile, baseDir)
+            if (requestedFile.listFiles()?.isEmpty() == true) {
+              val parentPath = requestedFile.parentFile?.relativeTo(baseDir)?.path ?: ""
+              val redirectUrl = if (parentPath.isEmpty()) "/" else "/browse/$parentPath"
+              call.respondRedirect("$redirectUrl?alert=empty_folder")
+            } else {
+              listDirectory(call, requestedFile, baseDir)
+            }
           } else {
             call.respond(HttpStatusCode.NotFound)
           }
@@ -146,6 +152,7 @@ private suspend fun listDirectory(
   baseDir: File,
 ) {
   val relativePath = dir.relativeTo(baseDir).path
+  val alert = call.request.queryParameters["alert"]
   call.respondHtml {
     head {
       title("File Share - ${if (relativePath.isEmpty()) "/" else relativePath}")
@@ -153,6 +160,13 @@ private suspend fun listDirectory(
       meta(name = "viewport", content = "width=device-width, initial-scale=1, shrink-to-fit=no")
     }
     body {
+      if (alert == "empty_folder") {
+        script {
+          unsafe {
+            +"alert('This folder is empty and cannot be entered.');"
+          }
+        }
+      }
       div(classes = "container mt-4") {
         div(classes = "row") {
           div(classes = "col-md-8") {

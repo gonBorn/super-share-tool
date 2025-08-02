@@ -34,7 +34,7 @@ fun logPanel(
           .primary,
     )
     LazyColumn(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-      items(messages) { msg ->
+      items(messages.filter { it.contains("UPLOAD") || it.contains("DOWNLOAD") }) { msg ->
         Text(
           msg,
           style =

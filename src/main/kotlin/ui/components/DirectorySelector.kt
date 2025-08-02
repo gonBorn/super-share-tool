@@ -8,7 +8,10 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
+import java.awt.Cursor
 import java.io.File
 import javax.swing.JFileChooser
 
@@ -44,7 +47,7 @@ fun directorySelector(
         onDirectorySelected(chooser.selectedFile.absolutePath)
       }
     },
-    modifier = Modifier.fillMaxWidth(),
+    modifier = Modifier.fillMaxWidth().pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
   ) {
     Text("Select Folder")
   }

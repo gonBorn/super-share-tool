@@ -10,8 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import service.WebSocketClient
+import java.awt.Cursor
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -108,6 +111,7 @@ fun chatPanel(
             chatMessage = ""
           }
         },
+        modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
       ) {
         Text("Send")
       }
@@ -116,6 +120,7 @@ fun chatPanel(
         onClick = {
           WebSocketClient.sendClearMessage()
         },
+        modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
       ) {
         Text("Clear")
       }

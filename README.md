@@ -17,14 +17,19 @@ on the same network.
 
    <img src="./assets/showcase-2.png" alt="super-share" width="300"/>
 
-3. Type the ip address or scan the QR code to access the super-share web interface, where you can upload and download
-   files.
+3. Type the ip address or scan the QR code in another device to access the super-share web interface,
+   where you can
+    - upload and download files
+    - send and receive messages
 
-   <img src="./assets/showcase.png" alt="super-share" width="300"/>
+  <img src="./assets/showcase-1.png" alt="super-share" width="300"/>
+   <br>
+  <img src="./assets/showcase-3.png" alt="super-share" height="300"/>
 
 ### MacOS Installation
-- Question: Apple could not verify free of malware that may harm your Mac or compromise your privacy.
-- Answer: Run the following command in the terminal to remove the quarantine attribute:
+
+- Issue: Apple could not verify free of malware that may harm your Mac or compromise your privacy.
+- Solution: Run the following command in the terminal to remove the quarantine attribute:
    ```bash
    xattr -d com.apple.quarantine /Applications/SuperShare.app
    ```
