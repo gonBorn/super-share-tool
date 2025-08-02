@@ -55,10 +55,9 @@ jobs:
           --dest build/dist
 
       - name: Zip the portable app
-        shell: bash
+        shell: pwsh
         run: |
-          cd build/dist/SuperShare
-          zip -r ../SuperShare-windows-portable.zip .
+          Compress-Archive -Path build/dist/SuperShare/* -DestinationPath build/dist/SuperShare-windows-portable.zip
 
       - name: Upload portable app artifact (Windows)
         uses: actions/upload-artifact@v4
