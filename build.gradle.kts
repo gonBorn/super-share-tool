@@ -1,3 +1,4 @@
+import com.github.gmazzo.gradle.plugins.launch4j.Launch4jTask
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 val ktorVersion = "2.3.12"
@@ -8,7 +9,7 @@ plugins {
   id("org.jetbrains.compose") version "1.6.11"
   id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
   id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("edu.sc.seis.launch4j") version "2.5.0"
+  id("com.github.gmazzo.launch4j") version "5.1.0"
 }
 
 group = "io.github.gonborn"
@@ -63,7 +64,7 @@ compose.desktop {
 }
 
 val unzipAndCopyJre by tasks.registering(Copy::class) {
-  val zipFile = file("$rootDir/jdk-21.0.8+9-jre.zip")
+  val zipFile = file("assets/jdk-21.0.8+9-jre.zip")
   val outputDir =
     layout
       .buildDirectory
@@ -76,27 +77,16 @@ val unzipAndCopyJre by tasks.registering(Copy::class) {
   into(outputDir)
 }
 
-launch4j {
-  mainClassName = "MainKt"
-  jar =
-    tasks
-      .shadowJar
-      .get()
-      .archiveFile
-      .get()
-      .asFile
-      .absolutePath
-  outfile = "dist/SuperShare.exe"
-  icon = "assets/file-share.ico"
-  bundledJrePath = "jdk-21.0.8+9-jre"
-  jreMinVersion = "21"
-  headerType = "gui"
-}
+tasks.withType<Launch4jTask> {
+  dependsOn(unzipAndCopyJre)
 
-afterEvaluate {
-  tasks.named("launch4j") {
-    dependsOn(unzipAndCopyJre)
-  }
+  mainClassName.set("MainKt")
+  from(tasks.shadowJar.flatMap { it.archiveFile })
+  outputFile.set(layout.buildDirectory.file("launch4j/dist/SuperShare.exe"))
+  icon.set(project.file("assets/file-share.ico"))
+  headerType.set(edu.gmazzo.gradle.plugins.launch4j.dsl.HeaderType.GUI)
+  jre.path.set(unzipAndCopyJre.map { it.destinationDir })
+  jre.minVersion.set("21")
 }
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
