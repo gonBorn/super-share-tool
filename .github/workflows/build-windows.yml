@@ -32,8 +32,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-#      - name: Run ktlintFormat
-#        run: ./gradlew ktlintFormat
+      - name: Run ktlintFormat
+        run: ./gradlew ktlintFormat
 
       - name: Build shadowJar
         run: ./gradlew shadowJar
@@ -43,10 +43,10 @@ jobs:
 
       - name: List build/dist contents
         shell: pwsh
-        run: Get-ChildItem -Path build/dist -Recurse
+        run: Get-ChildItem -Path build/launch4j/dist -Recurse
 
       - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
           name: super-share-windows-exe-${{ github.run_number }}
-          path: build/dist/SuperShare.exe
+          path: build/launch4j/dist/SuperShare.exe

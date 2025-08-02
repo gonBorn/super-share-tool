@@ -62,12 +62,28 @@ compose.desktop {
   }
 }
 
-launch4j {
-    mainClassName = "MainKt"
-    jar = tasks.shadowJar.get().archiveFile.get().asFile.absolutePath
-    outfile = "dist/SuperShare.exe"
-    headerType = "gui"
+import java.util.zip.ZipFile
+
+val unzipAndCopyJre by tasks.registering(Copy::class) {
+  val zipFile = file("$rootDir/jdk-21.0.8+9-jre.zip")
+  val outputDir = file("$buildDir/launch4j/jdk-21.0.8+9-jre")
+
+  // unzip using Gradle's built-in zipTree
+  from(zipTree(zipFile))
+  into(outputDir)
 }
+
+launch4j {
+  mainClassName = "MainKt"
+  jar = tasks.shadowJar.get().archiveFile.get().asFile.absolutePath
+  outfile = "dist/SuperShare.exe"
+  icon = "assets/file-share.ico"
+  bundledJrePath = "jdk-21.0.8+9-jre"
+  jreMinVersion = "21"
+  headerType = "gui"
+}
+
+launch4j.dependsOn(unzipAndCopyJre)
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
   archiveBaseName.set("super-share")
