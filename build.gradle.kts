@@ -8,7 +8,6 @@ plugins {
   id("org.jetbrains.compose") version "1.6.11"
   id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
   id("com.github.johnrengelman.shadow") version "8.1.1"
-  id("edu.sc.seis.launch4j") version "2.5.0"
 }
 
 group = "io.github.gonborn"
@@ -55,47 +54,14 @@ compose.desktop {
   application {
     mainClass = "MainKt"
     nativeDistributions {
-      targetFormats(TargetFormat.Dmg, TargetFormat.Deb) // Keep DMG for macOS, remove MSI for Windows
+      targetFormats(TargetFormat.Dmg, TargetFormat.Deb, TargetFormat.Exe)
       packageName = "SuperShare"
       packageVersion = "1.0.0"
+
+      windows {
+        iconFile.set(project.file("assets/file-share.ico"))
+      }
     }
-  }
-}
-
-val unzipAndCopyJre by tasks.registering(Copy::class) {
-  val zipFile = file("$rootDir/jdk-21.0.8+9-jre.zip")
-  val outputDir =
-    layout
-      .buildDirectory
-      .dir("launch4j/jdk-21.0.8+9-jre")
-      .get()
-      .asFile
-
-  // unzip using Gradle's built-in zipTree
-  from(zipTree(zipFile))
-  into(outputDir)
-}
-
-launch4j {
-  mainClassName = "MainKt"
-  jar =
-    tasks
-      .shadowJar
-      .get()
-      .archiveFile
-      .get()
-      .asFile
-      .absolutePath
-  outfile = "dist/SuperShare.exe"
-  icon = "assets/file-share.ico"
-  bundledJrePath = "jdk-21.0.8+9-jre"
-  jreMinVersion = "21"
-  headerType = "gui"
-}
-
-afterEvaluate {
-  tasks.named("launch4j") {
-    dependsOn(unzipAndCopyJre)
   }
 }
 

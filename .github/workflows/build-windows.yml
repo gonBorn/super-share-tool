@@ -43,15 +43,15 @@ jobs:
       - name: Build shadowJar
         run: ./gradlew shadowJar
 
-      - name: Package .exe with Launch4j (Windows)
-        run: ./gradlew launch4j
+      - name: Package .exe with jpackage (Windows)
+        run: ./gradlew packageExe
 
-      - name: List build/dist contents
+      - name: List build/compose/binaries contents
         shell: pwsh
-        run: Get-ChildItem -Path build/launch4j/dist -Recurse
+        run: Get-ChildItem -Path build/compose/binaries -Recurse
 
       - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
         with:
           name: super-share-windows-exe-${{ github.run_number }}
-          path: build/launch4j/dist/SuperShare.exe
+          path: build/compose/binaries/main/exe/SuperShare-1.0.0.exe
