@@ -41,6 +41,10 @@ jobs:
       - name: Package .exe with Launch4j (Windows)
         run: ./gradlew launch4j
 
+      - name: List build/dist contents
+        shell: pwsh
+        run: Get-ChildItem -Path build/dist -Recurse
+
       - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
         with:

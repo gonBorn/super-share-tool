@@ -66,13 +66,7 @@ launch4j {
     mainClassName = "MainKt"
     jar = tasks.shadowJar.get().archiveFile.get().asFile.absolutePath
     outfile = "dist/SuperShare.exe"
-    icon = "assets/file-share.ico"
-    bundledJrePath = "build/jre"
-    jreMinVersion = "21"
     headerType = "gui"
-    stayAlive = false
-    chdir = "."
-    dontWrapJar = false
 }
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
