@@ -19,11 +19,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Install MinGW and add to PATH
-        run: |
-          choco install mingw
-          echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
         with:
@@ -45,10 +40,6 @@ jobs:
 
       - name: Package .exe with jpackage (Windows)
         run: ./gradlew packageExe
-
-      - name: List build/compose/binaries contents
-        shell: pwsh
-        run: Get-ChildItem -Path build/compose/binaries -Recurse
 
       - name: Upload EXE artifact (Windows)
         uses: actions/upload-artifact@v4
