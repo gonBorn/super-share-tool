@@ -8,6 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
@@ -33,6 +34,7 @@ fun mainWindow(
     onCloseRequest = onCloseRequest,
     title = "Super Share",
     state = rememberWindowState(width = 1200.dp, height = 800.dp),
+    icon = painterResource("file-share.ico"),
   ) {
     MaterialTheme {
       SelectionContainer {
