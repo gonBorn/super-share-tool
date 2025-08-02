@@ -9,8 +9,19 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import service.WebSocketClient
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+private fun ipToColor(ip: String): Color {
+  val hash = ip.hashCode()
+  val r = (hash and 0xFF0000) shr 16
+  val g = (hash and 0x00FF00) shr 8
+  val b = hash and 0x0000FF
+  return Color(r, g, b)
+}
 
 @Composable
 fun chatPanel(
@@ -37,18 +48,23 @@ fun chatPanel(
           .colors
           .primary,
     )
-    LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)) {
-      items(messages.filter { it.startsWith("CHAT:") }) { msg ->
-        val fullMessage = msg.removePrefix("CHAT: ")
-        val timestampEndIndex = fullMessage.indexOf("]")
-
-        if (timestampEndIndex != -1) {
-          val timestamp = fullMessage.substring(0, timestampEndIndex + 1)
-          val content = fullMessage.substring(timestampEndIndex + 1).trimStart()
+    LazyColumn(
+      modifier =
+        Modifier
+          .weight(1f)
+          .fillMaxWidth()
+          .padding(vertical = 8.dp),
+    ) {
+      items(messages) { msg ->
+        val match = Regex("""^\[.*?\]:\[(.*?)\] \[(.*?)\]: (.*)$""").find(msg)
+        if (match != null) {
+          val (timestampStr, ip, message) = match.destructured
+          val date = LocalDateTime.parse(timestampStr)
+          val formattedTime = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
 
           Column(modifier = Modifier.padding(bottom = 8.dp)) {
             Text(
-              timestamp,
+              formattedTime,
               style =
                 androidx
                   .compose
@@ -56,16 +72,10 @@ fun chatPanel(
                   .MaterialTheme
                   .typography
                   .caption,
-              color =
-                androidx
-                  .compose
-                  .material
-                  .MaterialTheme
-                  .colors
-                  .primary,
+              color = Color.Gray,
             )
             Text(
-              content,
+              "[$ip]: $message",
               style =
                 androidx
                   .compose
@@ -73,19 +83,9 @@ fun chatPanel(
                   .MaterialTheme
                   .typography
                   .body1,
+              color = ipToColor(ip),
             )
           }
-        } else {
-          Text(
-            fullMessage,
-            style =
-              androidx
-                .compose
-                .material
-                .MaterialTheme
-                .typography
-                .body1,
-          )
         }
       }
     }
@@ -110,6 +110,14 @@ fun chatPanel(
         },
       ) {
         Text("Send")
+      }
+      Spacer(modifier = Modifier.width(8.dp))
+      Button(
+        onClick = {
+          WebSocketClient.sendClearMessage()
+        },
+      ) {
+        Text("Clear")
       }
     }
   }

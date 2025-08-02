@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import utils.IpAddressUtil.getLocalIpAddress
-import java.time.LocalDateTime
 
 object WebSocketClient {
   private val mutableMessages = MutableStateFlow<List<String>>(emptyList())
@@ -31,7 +30,11 @@ object WebSocketClient {
           for (frame in incoming) {
             if (frame is Frame.Text) {
               val receivedText = frame.readText()
-              mutableMessages.value = mutableMessages.value + receivedText
+              if (receivedText == "CLEAR") {
+                clearMessages()
+              } else {
+                mutableMessages.value = mutableMessages.value + receivedText
+              }
             }
           }
         }
@@ -43,8 +46,17 @@ object WebSocketClient {
 
   fun sendMessage(message: String) {
     CoroutineScope(Dispatchers.IO).launch {
-      val timestamp = LocalDateTime.now()
-      session?.send(Frame.Text("CHAT:[$timestamp] $message"))
+      session?.send(Frame.Text(message))
     }
+  }
+
+  fun sendClearMessage() {
+    CoroutineScope(Dispatchers.IO).launch {
+      session?.send(Frame.Text("CLEAR"))
+    }
+  }
+
+  private fun clearMessages() {
+    mutableMessages.value = emptyList()
   }
 }

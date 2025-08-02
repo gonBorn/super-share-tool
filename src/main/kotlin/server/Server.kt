@@ -16,6 +16,7 @@ import net.lingala.zip4j.ZipFile
 import state.AppState
 import utils.IpAddressUtil.getLocalIpAddress
 import java.io.File
+import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
@@ -117,7 +118,13 @@ fun startServer(port: Int) {
             for (frame in incoming) {
               if (frame is Frame.Text) {
                 val text = frame.readText()
-                broadcast("CHAT: $text")
+                val remoteHost = call.request.local.remoteHost
+                if (text == "CLEAR") {
+                  broadcast("CLEAR")
+                } else {
+                  val timestamp = LocalDateTime.now()
+                  broadcast("[$remoteHost]: CHAT:[$timestamp] [$remoteHost]: $text")
+                }
               }
             }
           } finally {
@@ -148,7 +155,7 @@ private suspend fun listDirectory(
     body {
       div(classes = "container mt-4") {
         div(classes = "row") {
-          div(classes = "col-md-9") {
+          div(classes = "col-md-8") {
             h1 { +"File Share" }
             h5 {
               +"Current Directory: ${if (relativePath.isEmpty()) "/" else relativePath}"
@@ -208,14 +215,14 @@ private suspend fun listDirectory(
               }
             }
           }
-          div(classes = "col-md-3") {
+          div(classes = "col-md-4") {
             h1 { +"Chat" }
             div(classes = "card") {
               div(classes = "card-body") {
                 div {
                   id = "chat-messages"
                   classes = setOf("mb-3")
-                  attributes["style"] = "height: 250px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"
+                  attributes["style"] = "height: 250px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; font-size: 0.9em;"
                 }
                 div(classes = "input-group") {
                   input(type = InputType.text, classes = "form-control") {
@@ -227,6 +234,10 @@ private suspend fun listDirectory(
                       +"Send"
                     }
                   }
+                }
+                button(classes = "btn btn-secondary btn-sm mt-2") {
+                  id = "clear-button"
+                  +"Clear Chat"
                 }
               }
             }
@@ -240,13 +251,55 @@ private suspend fun listDirectory(
             const chatMessages = document.getElementById("chat-messages");
             const messageInput = document.getElementById("message-input");
             const sendButton = document.getElementById("send-button");
+            const clearButton = document.getElementById("clear-button");
+
+            function ipToColor(ip) {
+                let hash = 0;
+                for (let i = 0; i < ip.length; i++) {
+                    hash = ip.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                let color = '#';
+                for (let i = 0; i < 3; i++) {
+                    const value = (hash >> (i * 8)) & 0xFF;
+                    color += ('00' + value.toString(16)).substr(-2);
+                }
+                return color;
+            }
 
             ws.onmessage = function(event) {
-                if (event.data.startsWith("CHAT:")) {
-                    const message = document.createElement("div");
-                    message.textContent = event.data.substring(5);
-                    chatMessages.appendChild(message);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                if (event.data === "CLEAR") {
+                    chatMessages.innerHTML = "";
+                } else {
+                    const match = event.data.match(/^\[.*?\]: CHAT:\[(.*?)\] \[(.*?)\]: (.*)$/);
+                    if (match) {
+                        const timestampStr = match[1];
+                        const ip = match[2];
+                        const message = match[3];
+
+                        const date = new Date(timestampStr);
+                        const formattedTime = date.getFullYear() + '/' +
+                            ('0' + (date.getMonth() + 1)).slice(-2) + '/' +
+                            ('0' + date.getDate()).slice(-2) + ' ' +
+                            ('0' + date.getHours()).slice(-2) + ':' +
+                            ('0' + date.getMinutes()).slice(-2) + ':' +
+                            ('0' + date.getSeconds()).slice(-2);
+
+                        const messageContainer = document.createElement("div");
+                        
+                        const timeElement = document.createElement("div");
+                        timeElement.textContent = formattedTime;
+                        timeElement.style.fontSize = "0.8em";
+                        timeElement.style.color = "#888";
+                        
+                        const messageElement = document.createElement("div");
+                        messageElement.textContent = "[" + ip + "]: " + message;
+                        messageElement.style.color = ipToColor(ip);
+
+                        messageContainer.appendChild(timeElement);
+                        messageContainer.appendChild(messageElement);
+                        chatMessages.appendChild(messageContainer);
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
                 }
             };
 
@@ -256,6 +309,10 @@ private suspend fun listDirectory(
                     ws.send(message);
                     messageInput.value = "";
                 }
+            };
+
+            clearButton.onclick = function() {
+                ws.send("CLEAR");
             };
 
             messageInput.addEventListener("keyup", function(event) {

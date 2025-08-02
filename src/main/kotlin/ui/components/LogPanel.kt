@@ -34,7 +34,7 @@ fun logPanel(
           .primary,
     )
     LazyColumn(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-      items(messages.filter { !it.startsWith("CHAT:") }) { msg ->
+      items(messages) { msg ->
         Text(
           msg,
           style =
