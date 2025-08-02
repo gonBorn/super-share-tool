@@ -60,8 +60,7 @@ jobs:
               --add-modules java.base,java.desktop `
               --strip-debug `
               --no-header-files `
-              --no-man-pages `
-              -ErrorAction Stop
+              --no-man-pages
           } catch {
             Write-Error "❌ jlink failed: $_"
             exit 1
@@ -71,44 +70,12 @@ jobs:
           Invoke-WebRequest -Uri "https://sourceforge.net/projects/launch4j/files/launch4j-3/3.50/launch4j-3.50-win32.zip/download" -OutFile "launch4j.zip"
           Expand-Archive -Path "launch4j.zip" -DestinationPath "$launch4jDir"
 
-          # Create config file for Launch4j
-          Set-Content -Path $configFile -Value @"
-          <launch4jConfig>
-            <dontWrapJar>false</dontWrapJar>
-            <headerType>gui</headerType>
-            <jar>$jarPath</jar>
-            <outfile>build/dist/$exeName</outfile>
-            <errTitle></errTitle>
-            <cmdLine></cmdLine>
-            <chdir>.</chdir>
-            <priority>normal</priority>
-            <downloadUrl>https://java.com/download</downloadUrl>
-            <supportUrl></supportUrl>
-            <customProcName>false</customProcName>
-            <stayAlive>false</stayAlive>
-            <restartOnCrash>false</restartOnCrash>
-            <manifest></manifest>
-            <icon>assets/file-transformer.ico</icon>
-            <bundledJrePath>$jreDir</bundledJrePath>
-            <jreMinVersion>21</jreMinVersion>
-            <jreMaxVersion>21</jreMaxVersion>
-            <versionInfo>
-              <fileVersion>$version</fileVersion>
-              <txtFileVersion>$version</txtFileVersion>
-              <productVersion>$version</productVersion>
-              <txtProductVersion>$version</txtProductVersion>
-              <fileDescription>SuperShare App</fileDescription>
-              <productName>SuperShare</productName>
-              <companyName>zeyan-du</companyName>
-              <internalName>SuperShare</internalName>
-              <originalFilename>$exeName</originalFilename>
-            </versionInfo>
-          </launch4jConfig>
-          "@
+          # Copy config file for Launch4j
+          Copy-Item config-launch4j.xml $configFile
 
           # Run Launch4j
           try {
-            & "$launch4jDir\launch4j\launch4j.exe" $configFile -ErrorAction Stop
+            & "$launch4jDir\launch4j\launch4j.exe" $configFile
           } catch {
             Write-Error "❌ Launch4j failed: $_"
             exit 1
