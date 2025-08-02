@@ -1,7 +1,6 @@
 package ui.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,7 +32,7 @@ fun logPanel(
           .colors
           .primary,
     )
-    LazyColumn(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    LazyColumn(modifier = Modifier.weight(1f, fill = false).padding(vertical = 8.dp)) {
       items(messages.filter { it.contains("UPLOAD") || it.contains("DOWNLOAD") }) { msg ->
         Text(
           msg,

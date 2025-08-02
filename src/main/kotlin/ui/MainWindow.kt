@@ -67,7 +67,7 @@ fun mainWindow(
           ) {
             Column(modifier = Modifier.padding(16.dp).fillMaxSize()) {
               logPanel(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 messages = messages,
               )
               Spacer(modifier = Modifier.height(16.dp))

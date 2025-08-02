@@ -10,13 +10,15 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import service.WebSocketClient
-import java.awt.Cursor
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -28,6 +30,7 @@ private fun ipToColor(ip: String): Color {
   return Color(r, g, b)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun chatPanel(
   modifier: Modifier = Modifier,
@@ -66,44 +69,63 @@ fun chatPanel(
           val (timestampStr, ip, message) = match.destructured
           val date = LocalDateTime.parse(timestampStr)
           val formattedTime = date.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
+          var isHovered by remember { mutableStateOf(false) }
+          val clipboardManager = LocalClipboardManager.current
 
-          Column(modifier = Modifier.padding(bottom = 8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+          Box(
+            modifier =
+              Modifier
+                .fillMaxWidth()
+                .onPointerEvent(PointerEventType.Enter) { isHovered = true }
+                .onPointerEvent(PointerEventType.Exit) { isHovered = false },
+          ) {
+            Column(modifier = Modifier.padding(bottom = 8.dp)) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                  formattedTime,
+                  style =
+                    androidx
+                      .compose
+                      .material
+                      .MaterialTheme
+                      .typography
+                      .caption,
+                  color = Color.Gray,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                  "[$ip]:",
+                  style =
+                    androidx
+                      .compose
+                      .material
+                      .MaterialTheme
+                      .typography
+                      .caption,
+                  color = ipToColor(ip),
+                )
+              }
               Text(
-                formattedTime,
+                message,
                 style =
                   androidx
                     .compose
                     .material
                     .MaterialTheme
                     .typography
-                    .caption,
-                color = Color.Gray,
-              )
-              Spacer(modifier = Modifier.width(8.dp))
-              Text(
-                "[$ip]:",
-                style =
-                  androidx
-                    .compose
-                    .material
-                    .MaterialTheme
-                    .typography
-                    .caption,
+                    .body1,
                 color = ipToColor(ip),
               )
             }
-            Text(
-              message,
-              style =
-                androidx
-                  .compose
-                  .material
-                  .MaterialTheme
-                  .typography
-                  .body1,
-              color = ipToColor(ip),
-            )
+            if (isHovered) {
+              Button(
+                onClick = { clipboardManager.setText(AnnotatedString(message)) },
+                modifier = Modifier.align(Alignment.TopEnd),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+              ) {
+                Text("Copy")
+              }
+            }
           }
         }
       }
@@ -132,7 +154,6 @@ fun chatPanel(
             chatMessage = ""
           }
         },
-        modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
       ) {
         Text("Send")
       }
@@ -141,7 +162,6 @@ fun chatPanel(
         onClick = {
           WebSocketClient.sendClearMessage()
         },
-        modifier = Modifier.pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
       ) {
         Text("Clear")
       }
