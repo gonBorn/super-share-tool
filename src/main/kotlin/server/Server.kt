@@ -123,7 +123,7 @@ fun startServer(port: Int) {
                   broadcast("CLEAR")
                 } else {
                   val timestamp = LocalDateTime.now()
-                  broadcast("[$remoteHost]: CHAT:[$timestamp] [$remoteHost]: $text")
+                  broadcast("[$timestamp] [$remoteHost]: $text")
                 }
               }
             }
@@ -270,7 +270,7 @@ private suspend fun listDirectory(
                 if (event.data === "CLEAR") {
                     chatMessages.innerHTML = "";
                 } else {
-                    const match = event.data.match(/^\[.*?\]: CHAT:\[(.*?)\] \[(.*?)\]: (.*)$/);
+                    const match = event.data.match(/^\[(.*?)\] \[(.*?)\]: (.*)$/);
                     if (match) {
                         const timestampStr = match[1];
                         const ip = match[2];

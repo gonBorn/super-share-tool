@@ -56,7 +56,7 @@ fun chatPanel(
           .padding(vertical = 8.dp),
     ) {
       items(messages) { msg ->
-        val match = Regex("""^\[.*?\]:\[(.*?)\] \[(.*?)\]: (.*)$""").find(msg)
+        val match = Regex("""^\[(.*?)\] \[(.*?)\]: (.*)$""").find(msg)
         if (match != null) {
           val (timestampStr, ip, message) = match.destructured
           val date = LocalDateTime.parse(timestampStr)
