@@ -18,6 +18,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import service.WebSocketClient
+import state.AppState
 import utils.IpAddressUtil.getLocalIpAddress
 import java.awt.image.BufferedImage
 import javax.swing.JFileChooser
@@ -26,12 +27,12 @@ import javax.swing.JFileChooser
 @Preview
 fun mainWindow(
   port: Int,
-  sharedDirectory: String,
   onDirectorySelected: (String) -> Unit,
   onCloseRequest: () -> Unit,
 ) {
   val messages by WebSocketClient.messages.collectAsState()
   var chatMessage by remember { mutableStateOf("") }
+  val baseDir by AppState.baseDir
 
   LaunchedEffect(Unit) {
     WebSocketClient.start(port)
@@ -80,7 +81,7 @@ fun mainWindow(
                 modifier = Modifier.padding(bottom = 8.dp),
               )
               OutlinedTextField(
-                value = sharedDirectory,
+                value = baseDir.absolutePath,
                 onValueChange = { },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
