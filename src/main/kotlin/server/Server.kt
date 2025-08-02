@@ -147,63 +147,123 @@ private suspend fun listDirectory(
     }
     body {
       div(classes = "container mt-4") {
-        h1 { +"File Share" }
-        h5 {
-          +"Current Directory: ${if (relativePath.isEmpty()) "/" else relativePath}"
-        }
-
-        if (relativePath.isNotEmpty()) {
-          val parentPath = dir.parentFile?.relativeTo(baseDir)?.path ?: ""
-          a(href = if (parentPath.isEmpty()) "/" else "/browse/$parentPath", classes = "btn btn-secondary mb-3") { +"../" }
-        }
-
-        form(action = "/upload", method = FormMethod.post, encType = FormEncType.multipartFormData) {
-          div(classes = "form-group") {
-            input(type = InputType.file, name = "file", classes = "form-control-file")
-          }
-          button(type = ButtonType.submit, classes = "btn btn-primary") { +"Upload File" }
-        }
-
-        hr()
-
-        table(classes = "table table-hover mt-4") {
-          thead {
-            tr {
-              th { +"Type" }
-              th { +"Name" }
-              th { +"Actions" }
+        div(classes = "row") {
+          div(classes = "col-md-9") {
+            h1 { +"File Share" }
+            h5 {
+              +"Current Directory: ${if (relativePath.isEmpty()) "/" else relativePath}"
             }
-          }
-          tbody {
-            dir.listFiles()?.filter { !it.isHidden }?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))?.forEach { file ->
-              tr {
-                td {
-                  if (file.isDirectory) {
-                    +"📁"
-                  } else {
-                    +"📄"
-                  }
+
+            if (relativePath.isNotEmpty()) {
+              val parentPath = dir.parentFile?.relativeTo(baseDir)?.path ?: ""
+              a(href = if (parentPath.isEmpty()) "/" else "/browse/$parentPath", classes = "btn btn-secondary mb-3") { +"../" }
+            }
+
+            form(action = "/upload", method = FormMethod.post, encType = FormEncType.multipartFormData) {
+              div(classes = "form-group") {
+                input(type = InputType.file, name = "file", classes = "form-control-file")
+              }
+              button(type = ButtonType.submit, classes = "btn btn-primary") { +"Upload File" }
+            }
+
+            hr()
+
+            table(classes = "table table-hover mt-4") {
+              thead {
+                tr {
+                  th { +"Type" }
+                  th { +"Name" }
+                  th { +"Actions" }
                 }
-                td {
-                  val link =
-                    if (file.isDirectory) {
-                      "/browse/${file.relativeTo(baseDir).path}"
-                    } else {
-                      "/download/${file.relativeTo(baseDir).path}"
+              }
+              tbody {
+                dir.listFiles()?.filter { !it.isHidden }?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))?.forEach { file ->
+                  tr {
+                    td {
+                      if (file.isDirectory) {
+                        +"📁"
+                      } else {
+                        +"📄"
+                      }
                     }
-                  a(href = link) { +file.name }
-                }
-                td {
-                  if (file.isDirectory) {
-                    a(
-                      href = "/download-zip/${file.relativeTo(baseDir).path}",
-                      classes = "btn btn-primary btn-sm",
-                    ) { +"Download ZIP" }
+                    td {
+                      val link =
+                        if (file.isDirectory) {
+                          "/browse/${file.relativeTo(baseDir).path}"
+                        } else {
+                          "/download/${file.relativeTo(baseDir).path}"
+                        }
+                      a(href = link) { +file.name }
+                    }
+                    td {
+                      if (file.isDirectory) {
+                        a(
+                          href = "/download-zip/${file.relativeTo(baseDir).path}",
+                          classes = "btn btn-primary btn-sm",
+                        ) { +"Download ZIP" }
+                      }
+                    }
                   }
                 }
               }
             }
           }
+          div(classes = "col-md-3") {
+            h1 { +"Chat" }
+            div(classes = "card") {
+              div(classes = "card-body") {
+                div {
+                  id = "chat-messages"
+                  classes = setOf("mb-3")
+                  attributes["style"] = "height: 250px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"
+                }
+                div(classes = "input-group") {
+                  input(type = InputType.text, classes = "form-control") {
+                    id = "message-input"
+                  }
+                  div(classes = "input-group-append") {
+                    button(classes = "btn btn-primary") {
+                      id = "send-button"
+                      +"Send"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      script {
+        unsafe {
+          +"""
+            const ws = new WebSocket("ws://" + location.host + "/ws");
+            const chatMessages = document.getElementById("chat-messages");
+            const messageInput = document.getElementById("message-input");
+            const sendButton = document.getElementById("send-button");
+
+            ws.onmessage = function(event) {
+                if (event.data.startsWith("CHAT:")) {
+                    const message = document.createElement("div");
+                    message.textContent = event.data.substring(5);
+                    chatMessages.appendChild(message);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+            };
+
+            sendButton.onclick = function() {
+                const message = messageInput.value;
+                if (message.trim() !== "") {
+                    ws.send(message);
+                    messageInput.value = "";
+                }
+            };
+
+            messageInput.addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    sendButton.click();
+                }
+            });
+          """
         }
       }
     }
