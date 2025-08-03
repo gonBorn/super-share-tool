@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
@@ -18,6 +19,7 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import service.WebSocketClient
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -37,6 +39,8 @@ fun chatPanel(
   messages: List<String>,
 ) {
   var chatMessage by remember { mutableStateOf("") }
+  val listState = rememberLazyListState()
+  val coroutineScope = rememberCoroutineScope()
 
   Column(modifier = modifier) {
     Text(
@@ -57,6 +61,7 @@ fun chatPanel(
           .primary,
     )
     LazyColumn(
+      state = listState,
       modifier =
         Modifier
           .weight(1f)
@@ -127,6 +132,14 @@ fun chatPanel(
               }
             }
           }
+        }
+      }
+    }
+
+    LaunchedEffect(messages.size) {
+      if (messages.isNotEmpty()) {
+        coroutineScope.launch {
+          listState.animateScrollToItem(messages.size - 1)
         }
       }
     }
