@@ -71,8 +71,6 @@ suspend fun ApplicationCall.respondWithHtml(
               }
             }
 
-            hr()
-
             table(classes = "table table-hover mt-4") {
               thead {
                 tr {
@@ -113,17 +111,17 @@ suspend fun ApplicationCall.respondWithHtml(
               }
             }
           }
-          div(classes = "col-md-4") {
+          div(classes = "col-md-4 d-flex flex-column") {
             h1 { +"Chat" }
-            div(classes = "card") {
-              div(classes = "card-body") {
+            div(classes = "card flex-grow-1") {
+              div(classes = "card-body d-flex flex-column") {
                 div {
                   id = "chat-messages"
-                  classes = setOf("mb-3")
+                  classes = setOf("mb-3 flex-grow-1")
                   attributes["style"] =
-                    "height: 250px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; font-size: 0.9em;"
+                    "overflow-y: scroll; padding: 10px; font-size: 0.9em; max-height: 70vh; min-height: 300px;"
                 }
-                div(classes = "input-group") {
+                div(classes = "input-group mt-auto") {
                   textArea(classes = "form-control") {
                     id = "message-input"
                     rows = "3"

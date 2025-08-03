@@ -17,12 +17,48 @@ function ipToColor(ip) {
     return color;
 }
 
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(err => {
+            console.error('Failed to copy text using navigator: ', err);
+            fallbackCopyTextToClipboard(text);
+        });
+    } else {
+        fallbackCopyTextToClipboard(text);
+    }
+}
+
+function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+
+    // Avoid scrolling to bottom
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+        if (!successful) {
+            console.error('Fallback: Copying text command was not successful');
+        }
+    } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+    }
+
+    document.body.removeChild(textArea);
+}
+
 ws.onmessage = function(event) {
     if (event.data === "CLEAR") {
         chatMessages.innerHTML = "";
     } else {
         // Use the same pattern as ChatPanel
-        const match = event.data.match(/^(?:.|\n)*?\[(.*?)\] \[(.*?)\]: (.*)$/s);
+        const match = event.data.match(/^(?:.|)*?\[(.*?)\] \[(.*?)\]: (.*)$/s);
         if (match) {
             const timestampStr = match[1];
             const ip = match[2];
@@ -34,11 +70,33 @@ ws.onmessage = function(event) {
                 date.getFullYear() + '/' +
                 ('0' + (date.getMonth() + 1)).slice(-2) + '/' +
                 ('0' + date.getDate()).slice(-2) + ' ' +
-                ('0' + date.getHours()).slice(-2) + ':' +
-                ('0' + date.getMinutes()).slice(-2) + ':' +
+                ('0' + date.getHours()).slice(-2) + ':' + 
+                ('0' + date.getMinutes()).slice(-2) + ':' + 
                 ('0' + date.getSeconds()).slice(-2);
 
             const messageContainer = document.createElement("div");
+            messageContainer.style.position = "relative";
+            messageContainer.style.marginBottom = "10px";
+
+            const copyButton = document.createElement("button");
+            copyButton.textContent = "Copy";
+            copyButton.style.position = "absolute";
+            copyButton.style.top = "0";
+            copyButton.style.right = "0";
+            copyButton.style.display = "none";
+            copyButton.className = "btn btn-secondary btn-sm";
+
+            copyButton.addEventListener("click", () => {
+                copyToClipboard(message);
+            });
+
+            messageContainer.addEventListener("mouseover", () => {
+                copyButton.style.display = "block";
+            });
+
+            messageContainer.addEventListener("mouseout", () => {
+                copyButton.style.display = "none";
+            });
             
             const infoContainer = document.createElement("div");
             
@@ -61,6 +119,7 @@ ws.onmessage = function(event) {
 
             messageContainer.appendChild(infoContainer);
             messageContainer.appendChild(messageElement);
+            messageContainer.appendChild(copyButton);
             chatMessages.appendChild(messageContainer);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
