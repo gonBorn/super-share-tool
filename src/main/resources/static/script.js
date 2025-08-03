@@ -113,6 +113,7 @@ ws.onmessage = function(event) {
             const messageElement = document.createElement("div");
             messageElement.textContent = message;
             messageElement.style.color = ipToColor(ip);
+            messageElement.style.whiteSpace = "pre-wrap";
 
             infoContainer.appendChild(timeElement);
             infoContainer.appendChild(ipElement);
