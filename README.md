@@ -8,6 +8,8 @@ Super Share is a simple file sharing server written in Kotlin.
 It allows you to share files over HTTP, making it easy to download, upload files and even send messages between devices
 on the same network.
 
+[Build](https://github.com/gonBorn/super-share-tool/actions)
+
 ## User Handbook
 
 1. Download the **jar** file, **exe** or **dmg** from
