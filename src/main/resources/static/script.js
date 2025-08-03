@@ -150,6 +150,7 @@ const fileInput = document.getElementById("file-input");
 const progressContainer = document.getElementById("upload-progress-container");
 const progressBar = document.getElementById("progress-bar");
 const progressText = document.getElementById("progress-text");
+const cancelUploadButton = document.getElementById("cancel-upload-button");
 
 uploadForm.addEventListener("submit", function(event) {
     event.preventDefault();
@@ -170,6 +171,7 @@ uploadForm.addEventListener("submit", function(event) {
     xhr.upload.addEventListener("progress", function(e) {
         if (e.lengthComputable) {
             progressContainer.style.display = "block";
+            cancelUploadButton.style.display = "inline-block";
             const percentComplete = (e.loaded / e.total) * 100;
             progressBar.style.width = percentComplete + "%";
             progressBar.setAttribute("aria-valuenow", percentComplete);
@@ -198,12 +200,24 @@ uploadForm.addEventListener("submit", function(event) {
     xhr.addEventListener("load", function() {
         progressBar.classList.add("bg-success");
         progressText.textContent = "Upload complete!";
+        cancelUploadButton.style.display = "none";
         setTimeout(() => location.reload(), 1000);
     });
 
     xhr.addEventListener("error", function() {
         progressBar.classList.add("bg-danger");
         progressText.textContent = "Upload failed.";
+        cancelUploadButton.style.display = "none";
+    });
+
+    xhr.addEventListener("abort", function() {
+        progressBar.classList.add("bg-warning");
+        progressText.textContent = "Upload canceled.";
+        cancelUploadButton.style.display = "none";
+    });
+
+    cancelUploadButton.addEventListener("click", function() {
+        xhr.abort();
     });
 
     xhr.open("POST", "/upload", true);

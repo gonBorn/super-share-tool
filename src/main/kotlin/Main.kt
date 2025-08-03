@@ -12,7 +12,7 @@ import java.io.File
 
 fun main(args: Array<String>) =
   application {
-    val port = args.getOrNull(0)?.toInt() ?: 8080
+    val port = args.getOrNull(0)?.toInt() ?: 3999
     var serverScope by remember { mutableStateOf<CoroutineScope?>(null) }
 
     // Start the server only once

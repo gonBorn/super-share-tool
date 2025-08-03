@@ -69,6 +69,11 @@ suspend fun ApplicationCall.respondWithHtml(
                 id = "progress-text"
                 style = "text-align: center; margin-top: 5px;"
               }
+              button(classes = "btn btn-danger btn-sm mt-2") {
+                id = "cancel-upload-button"
+                style = "display: none;"
+                +"Cancel"
+              }
             }
 
             table(classes = "table table-hover mt-4") {
