@@ -50,7 +50,7 @@ jobs:
           --main-jar "$JAR_FILE" \
           --main-class MainKt \
           --app-version "$APP_VERSION" \
-          --icon assets/file-transformer.icns \
+          --icon src/main/resources/icons/file-transformer.icns \
           --vendor "zeyan-du"
 
       - name: Upload .dmg artifact (macOS)

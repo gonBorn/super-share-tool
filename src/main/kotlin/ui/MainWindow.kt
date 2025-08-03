@@ -34,7 +34,7 @@ fun mainWindow(
     onCloseRequest = onCloseRequest,
     title = "Super Share",
     state = rememberWindowState(width = 1200.dp, height = 800.dp),
-    icon = painterResource("file-share.ico"),
+    icon = painterResource("icons/file-share.ico"),
   ) {
     MaterialTheme {
       SelectionContainer {

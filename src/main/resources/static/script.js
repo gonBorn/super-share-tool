@@ -21,14 +21,17 @@ ws.onmessage = function(event) {
     if (event.data === "CLEAR") {
         chatMessages.innerHTML = "";
     } else {
-        const match = event.data.match(/^\[(.*?)\] \[(.*?)\]: (.*)$/);
+        // Use the same pattern as ChatPanel
+        const match = event.data.match(/^(?:.|\n)*?\[(.*?)\] \[(.*?)\]: (.*)$/s);
         if (match) {
             const timestampStr = match[1];
             const ip = match[2];
             const message = match[3];
 
+            // Format timestamp as yyyy/MM/dd HH:mm:ss
             const date = new Date(timestampStr);
-            const formattedTime = date.getFullYear() + '/' +
+            const formattedTime =
+                date.getFullYear() + '/' +
                 ('0' + (date.getMonth() + 1)).slice(-2) + '/' +
                 ('0' + date.getDate()).slice(-2) + ' ' +
                 ('0' + date.getHours()).slice(-2) + ':' +

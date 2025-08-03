@@ -51,7 +51,7 @@ jobs:
           --main-class MainKt \
           --app-version "$APP_VERSION" \
           --vendor "zeyan" \
-          --icon assets/file-share.ico \
+          --icon src/main/resources/icons/file-share.ico \
           --dest build/dist
 
       - name: Zip the portable app
