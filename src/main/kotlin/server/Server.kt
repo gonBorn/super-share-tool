@@ -47,21 +47,35 @@ fun startServer(port: Int) {
 
         post("/upload") {
           val multipart = call.receiveMultipart()
-          val baseDir = AppState.baseDir.value
+          var path = ""
+          var fileName = ""
+          var fileBytes: ByteArray? = null
+
           multipart.forEachPart { part ->
-            if (part is PartData.FileItem) {
-              val fileName = part.originalFileName ?: "unknown"
-              val file = File(baseDir, fileName)
-              part.streamProvider().use { input ->
-                file.outputStream().buffered().use { output ->
-                  input.copyTo(output)
+            when (part) {
+              is PartData.FormItem -> {
+                if (part.name == "path") {
+                  path = part.value
                 }
               }
-              broadcast("UPLOAD: $fileName")
+              is PartData.FileItem -> {
+                fileName = part.originalFileName ?: "unknown"
+                fileBytes = part.streamProvider().readBytes()
+              }
+              else -> {}
             }
             part.dispose()
           }
-          call.respondRedirect("/")
+
+          if (fileName.isNotEmpty() && fileBytes != null) {
+            val baseDir = AppState.baseDir.value
+            val targetDir = if (path.isBlank() || path == "/") baseDir else File(baseDir, path)
+            val file = File(targetDir, fileName)
+            file.writeBytes(fileBytes!!)
+            broadcast("UPLOAD: $fileName")
+          }
+
+          call.respondRedirect(if (path.isBlank()) "/" else "/browse$path")
         }
 
         get("/browse/{path...}") {

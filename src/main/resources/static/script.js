@@ -164,6 +164,7 @@ uploadForm.addEventListener("submit", function(event) {
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("path", window.location.pathname.replace("/browse", ""));
 
     const xhr = new XMLHttpRequest();
     let lastLoaded = 0;
