@@ -48,7 +48,10 @@ suspend fun ApplicationCall.respondWithHtml(
                   id = "file-input"
                 }
               }
-              button(type = ButtonType.submit, classes = "btn btn-primary") { +"Upload File" }
+              button(type = ButtonType.submit, classes = "btn btn-primary") {
+                id = "upload-button"
+                +"Upload File"
+              }
             }
 
             div {
