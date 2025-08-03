@@ -17,8 +17,8 @@ on the same network.
 
    <img src="./assets/showcase-2.png" alt="super-share" width="300"/>
 
-3. Type the ip address or scan the QR code in another device to access the super-share web interface,
-   where you can
+3. Type the ip address or scan the QR code in another device, no matter it is the phone, ipad or another laptop to
+   access the super-share web UI, where you can
     - upload and download files
     - send and receive messages
 
