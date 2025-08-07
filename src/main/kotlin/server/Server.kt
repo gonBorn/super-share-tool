@@ -1,18 +1,20 @@
 package server
 
 import io.ktor.http.*
-import io.ktor.http.content.*
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
-import io.ktor.server.html.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
-import kotlinx.html.*
 import net.lingala.zip4j.ZipFile
 import state.AppState
 import utils.IpAddressUtil.getLocalIpAddress
@@ -37,19 +39,24 @@ fun startServer(port: Int) {
   server =
     embeddedServer(Netty, port) {
       install(WebSockets)
+      install(ContentNegotiation) {
+        json()
+      }
 
       routing {
-        staticResources("/static", "static")
+        staticFiles("/static", File(AppState.baseDir.value, "static/webapp/build/static"))
+
         get("/") {
-          val baseDir = AppState.baseDir.value
-          listDirectory(call, baseDir, baseDir)
+          call.respondFile(File(AppState.baseDir.value, "static/webapp/build/index.html"))
+        }
+
+        get("/browse/{...}") {
+          call.respondFile(File(AppState.baseDir.value, "static/webapp/build/index.html"))
         }
 
         post("/upload") {
           val multipart = call.receiveMultipart()
           var path = ""
-          var fileName = ""
-          var fileBytes: ByteArray? = null
 
           multipart.forEachPart { part ->
             when (part) {
@@ -59,40 +66,55 @@ fun startServer(port: Int) {
                 }
               }
               is PartData.FileItem -> {
-                fileName = part.originalFileName ?: "unknown"
-                fileBytes = part.streamProvider().readBytes()
+                val fileName = part.originalFileName as String
+                val baseDir = AppState.baseDir.value
+                val targetDir = if (path.isBlank() || path == "/") baseDir else File(baseDir, path)
+                if (!targetDir.exists()) {
+                  targetDir.mkdirs()
+                }
+                val file = File(targetDir, fileName)
+                part.streamProvider().use { input ->
+                  file.outputStream().buffered().use { output ->
+                    input.copyTo(output)
+                  }
+                }
+                broadcast("UPLOAD: $fileName")
               }
               else -> {}
             }
             part.dispose()
           }
-
-          if (fileName.isNotEmpty() && fileBytes != null) {
-            val baseDir = AppState.baseDir.value
-            val targetDir = if (path.isBlank() || path == "/") baseDir else File(baseDir, path)
-            val file = File(targetDir, fileName)
-            file.writeBytes(fileBytes!!)
-            broadcast("UPLOAD: $fileName")
-          }
-
-          call.respondRedirect(if (path.isBlank()) "/" else "/browse$path")
+          call.respond(HttpStatusCode.OK)
         }
 
-        get("/browse/{path...}") {
+        get("/api/files/{path...}") {
           val path = call.parameters.getAll("path")?.joinToString(File.separator) ?: ""
           val baseDir = AppState.baseDir.value
           val requestedFile = File(baseDir, path)
           if (requestedFile.isDirectory) {
-            if (requestedFile.listFiles()?.isEmpty() == true) {
-              val parentPath = requestedFile.parentFile?.relativeTo(baseDir)?.path ?: ""
-              val redirectUrl = if (parentPath.isEmpty()) "/" else "/browse/$parentPath"
-              call.respondRedirect("$redirectUrl?alert=empty_folder")
-            } else {
-              listDirectory(call, requestedFile, baseDir)
-            }
+            val files =
+              requestedFile
+                .listFiles()
+                ?.filter { !it.isHidden }
+                ?.map {
+                  FileInfo(it.name, it.relativeTo(baseDir).path, it.isDirectory, if (it.isFile) it.length() else 0)
+                }?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))
+            call.respond(files ?: emptyList())
           } else {
             call.respond(HttpStatusCode.NotFound)
           }
+        }
+
+        get("/api/files") {
+          val baseDir = AppState.baseDir.value
+          val files =
+            baseDir
+              .listFiles()
+              ?.filter { !it.isHidden }
+              ?.map {
+                FileInfo(it.name, it.relativeTo(baseDir).path, it.isDirectory, if (it.isFile) it.length() else 0)
+              }?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))
+          call.respond(files ?: emptyList())
         }
 
         get("/download/{path...}") {
@@ -160,12 +182,4 @@ fun startServer(port: Int) {
 fun stopServer() {
   server?.stop(1, 5, TimeUnit.SECONDS)
   server = null
-}
-
-private suspend fun listDirectory(
-  call: ApplicationCall,
-  dir: File,
-  baseDir: File,
-) {
-  call.respondWithHtml(dir, baseDir)
 }
