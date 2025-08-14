@@ -33,7 +33,7 @@ fun mainWindow(
   Window(
     onCloseRequest = onCloseRequest,
     title = "Super Share",
-    state = rememberWindowState(width = 1200.dp, height = 800.dp),
+    state = rememberWindowState(width = 1300.dp, height = 800.dp),
     icon = painterResource("icons/file-share.ico"),
   ) {
     MaterialTheme {

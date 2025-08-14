@@ -2,17 +2,22 @@ package ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
@@ -24,6 +29,8 @@ fun serverInfo(
   modifier: Modifier = Modifier,
   port: Int,
 ) {
+  val clipboardManager = LocalClipboardManager.current
+
   Column(modifier = modifier) {
     val ipAddress = remember { IpAddressUtil.getLocalIpAddress() }
     Text(
@@ -32,7 +39,15 @@ fun serverInfo(
       color = MaterialTheme.colors.primary,
       modifier = Modifier.padding(bottom = 12.dp),
     )
-    Text("http://$ipAddress:$port", style = MaterialTheme.typography.h5)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Text("http://$ipAddress:$port", style = MaterialTheme.typography.h5)
+      Spacer(modifier = Modifier.size(8.dp))
+      Button(onClick = {
+        clipboardManager.setText(AnnotatedString("http://$ipAddress:$port"))
+      }) {
+        Text("Copy")
+      }
+    }
 
     Spacer(modifier = Modifier.height(16.dp))
 

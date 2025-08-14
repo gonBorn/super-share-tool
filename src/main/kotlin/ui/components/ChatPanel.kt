@@ -46,17 +46,11 @@ fun chatPanel(
     Text(
       "Chat",
       style =
-        androidx
-          .compose
-          .material
-          .MaterialTheme
+        MaterialTheme
           .typography
           .h4,
       color =
-        androidx
-          .compose
-          .material
-          .MaterialTheme
+        MaterialTheme
           .colors
           .primary,
     )
@@ -89,10 +83,7 @@ fun chatPanel(
                 Text(
                   formattedTime,
                   style =
-                    androidx
-                      .compose
-                      .material
-                      .MaterialTheme
+                    MaterialTheme
                       .typography
                       .caption,
                   color = Color.Gray,
@@ -101,10 +92,7 @@ fun chatPanel(
                 Text(
                   "[$ip]:",
                   style =
-                    androidx
-                      .compose
-                      .material
-                      .MaterialTheme
+                    MaterialTheme
                       .typography
                       .caption,
                   color = ipToColor(ip),
@@ -113,10 +101,7 @@ fun chatPanel(
               Text(
                 message,
                 style =
-                  androidx
-                    .compose
-                    .material
-                    .MaterialTheme
+                  MaterialTheme
                     .typography
                     .body1,
                 color = ipToColor(ip),
