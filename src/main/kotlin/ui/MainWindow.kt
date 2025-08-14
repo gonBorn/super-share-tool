@@ -10,9 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.rememberWindowState
 import service.WebSocketClient
+import state.AppConfig
 import state.AppState
 import ui.components.*
 
@@ -25,9 +27,13 @@ fun mainWindow(
 ) {
   val messages by WebSocketClient.messages.collectAsState()
   val baseDir by AppState.baseDir
+  var showPreferencesDialog by remember { mutableStateOf(false) }
 
   LaunchedEffect(Unit) {
     WebSocketClient.start(port)
+    AppConfig.defaultSharingDirectory?.let {
+      onDirectorySelected(it)
+    }
   }
 
   Window(
@@ -36,6 +42,14 @@ fun mainWindow(
     state = rememberWindowState(width = 1300.dp, height = 800.dp),
     icon = painterResource("icons/file-share.ico"),
   ) {
+    MenuBar {
+      Menu("File", mnemonic = 'F') {
+        Item("Preferences", onClick = { showPreferencesDialog = true }, mnemonic = 'P')
+      }
+    }
+    if (showPreferencesDialog) {
+      preferencesDialog(onCloseRequest = { showPreferencesDialog = false })
+    }
     MaterialTheme {
       SelectionContainer {
         Row(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -52,7 +66,10 @@ fun mainWindow(
                 port = port,
               )
               Spacer(modifier = Modifier.height(16.dp))
-              directorySelector(baseDir, onDirectorySelected)
+              directorySelector(
+                selectedDirectory = baseDir,
+                onDirectorySelected = { onDirectorySelected(it.absolutePath) },
+              )
               Spacer(modifier = Modifier.height(16.dp))
               fileBrowser(baseDir)
             }

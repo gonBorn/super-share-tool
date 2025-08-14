@@ -43,3 +43,4 @@ bin/
 
 node_modules
 src/main/resources/static/webapp/build
+config.properties
