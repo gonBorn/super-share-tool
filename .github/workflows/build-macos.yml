@@ -2,9 +2,9 @@ name: MacOS Build and Package
 
 on:
   push:
-    branches: [ main ]
+    branches-ignore: [ main ]
   pull_request:
-    branches: [ main ]
+    branches-ignore: [ main ]
 
 jobs:
   build:
