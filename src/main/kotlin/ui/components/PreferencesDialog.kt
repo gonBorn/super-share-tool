@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindow
 import state.AppConfig
 import state.AppState
 import java.io.File
@@ -18,12 +18,12 @@ import java.io.File
 fun preferencesDialog(onCloseRequest: () -> Unit) {
   val (selectedDirectory, setSelectedDirectory) = remember { mutableStateOf(AppConfig.defaultSharingDirectory) }
 
-  Dialog(onCloseRequest = onCloseRequest, title = "Preferences") {
+  DialogWindow(onCloseRequest = onCloseRequest, title = "Preferences") {
     Column(modifier = Modifier.padding(16.dp)) {
       directorySelector(
         selectedDirectory = selectedDirectory?.let { File(it) },
-        onDirectorySelected = {
-          setSelectedDirectory(it.absolutePath)
+        onDirectorySelected = { file ->
+          setSelectedDirectory(file.absolutePath)
         },
       )
       Spacer(modifier = Modifier.height(16.dp))
