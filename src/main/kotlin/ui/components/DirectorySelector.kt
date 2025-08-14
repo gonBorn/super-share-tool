@@ -17,8 +17,8 @@ import javax.swing.JFileChooser
 
 @Composable
 fun directorySelector(
-  baseDir: File,
-  onDirectorySelected: (String) -> Unit,
+  selectedDirectory: File?,
+  onDirectorySelected: (File) -> Unit,
 ) {
   Text(
     "Sharing Directory:",
@@ -32,7 +32,7 @@ fun directorySelector(
     modifier = Modifier.fillMaxWidth(),
   )
   OutlinedTextField(
-    value = baseDir.absolutePath,
+    value = selectedDirectory?.absolutePath ?: "",
     onValueChange = { },
     modifier = Modifier.fillMaxWidth(),
     readOnly = true,
@@ -44,7 +44,7 @@ fun directorySelector(
       chooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
       val result = chooser.showOpenDialog(null)
       if (result == JFileChooser.APPROVE_OPTION) {
-        onDirectorySelected(chooser.selectedFile.absolutePath)
+        onDirectorySelected(chooser.selectedFile)
       }
     },
     modifier = Modifier.fillMaxWidth().pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR))),
