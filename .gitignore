@@ -40,3 +40,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+node_modules
+src/main/resources/static/webapp/build
