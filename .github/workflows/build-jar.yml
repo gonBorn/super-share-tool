@@ -22,7 +22,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: ${{ inputs.distribution }}
@@ -46,3 +46,9 @@ jobs:
 
       - name: Build shadowJar
         run: ./gradlew shadowJar
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: super-share-jar
+          path: build/libs/super-share-*.jar

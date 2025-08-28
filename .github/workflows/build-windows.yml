@@ -1,8 +1,8 @@
 name: Windows Build and Package
 
 on:
+  workflow_call:
   push:
-    branches-ignore: [ main ]
     paths-ignore:
       - 'README.md'
       - 'docs/**'
@@ -10,17 +10,25 @@ on:
       - 'assets/**'
 
 jobs:
-  build:
+  build-jar:
+    uses: ./.github/workflows/build-jar.yml
+    with:
+      runs-on: windows-latest
+      java-version: '21'
+      distribution: 'temurin'
+
+  package:
     runs-on: windows-latest
+    needs: build-jar
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - uses: ./.github/workflows/build-jar.yml
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
         with:
-          runs-on: windows-latest
-          java-version: '21'
-          distribution: 'temurin'
+          name: super-share-jar
+          path: build/libs
 
       - name: Package portable app with jpackage (Windows)
         shell: bash
