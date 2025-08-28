@@ -1,0 +1,54 @@
+name: Lint and Build JAR
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      java-version:
+        required: false
+        type: string
+        default: '21'
+      distribution:
+        required: false
+        type: string
+        default: 'temurin'
+
+jobs:
+  build-jar:
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ inputs.distribution }}
+          java-version: ${{ inputs.java-version }}
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run ktlintFormat
+        run: ./gradlew ktlintFormat
+
+      - name: Build shadowJar
+        run: ./gradlew shadowJar
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: super-share-jar
+          path: build/libs/super-share-*.jar

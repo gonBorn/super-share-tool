@@ -1,14 +1,25 @@
 name: MacOS Build and Package
 
 on:
+  workflow_call:
   push:
-    branches-ignore: [ main ]
-  pull_request:
-    branches-ignore: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
+      - 'assets/**'
 
 jobs:
-  build:
+  build-jar:
+    uses: ./.github/workflows/build-jar.yml
+    with:
+      runs-on: macos-latest
+      java-version: '21'
+      distribution: 'temurin'
+
+  package:
     runs-on: macos-latest
+    needs: build-jar
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
@@ -19,24 +30,11 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
+      - name: Download JAR artifact
+        uses: actions/download-artifact@v4
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Run ktlintFormat
-        run: ./gradlew ktlintFormat
-
-      - name: Build shadowJar
-        run: ./gradlew shadowJar
+          name: super-share-jar
+          path: build/libs
 
       - name: Package .dmg with jpackage (macOS)
         shell: bash
