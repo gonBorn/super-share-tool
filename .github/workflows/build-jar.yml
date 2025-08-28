@@ -1,6 +1,19 @@
 name: Build JAR
 on:
-  workflow_call
+  workflow_call:
+    inputs:
+      runs-on:
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      java-version:
+        required: false
+        type: string
+        default: '21'
+      distribution:
+        required: false
+        type: string
+        default: 'temurin'
 
 jobs:
   build-jar:

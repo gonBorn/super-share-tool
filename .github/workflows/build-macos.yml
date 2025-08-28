@@ -2,8 +2,6 @@ name: MacOS Build and Package
 
 env:
   RUNNER: macos-latest
-  JAVA_VERSION: '21'
-  JAVA_DISTRIBUTION: 'temurin'
 
 on:
   push:
@@ -11,6 +9,7 @@ on:
       - 'README.md'
       - 'docs/**'
       - '**/*.md'
+      - 'assets/**'
 
 jobs:
   build:
@@ -21,9 +20,9 @@ jobs:
 
       - uses: ./.github/workflows/build-jar.yml
         with:
-          runs-on: ${{ env.RUNNER }}
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          runs-on: macos-latest
+          java-version: '21'
+          distribution: 'temurin'
 
       - name: Package .dmg with jpackage (macOS)
         shell: bash
