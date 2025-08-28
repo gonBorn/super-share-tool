@@ -1,4 +1,4 @@
-name: Build JAR
+name: Lint and Build JAR
 on:
   workflow_call:
     inputs:
