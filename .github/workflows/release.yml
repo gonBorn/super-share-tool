@@ -4,42 +4,17 @@ permissions:
   contents: write
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+    types:
+      - closed
 
 jobs:
   build-and-package-macos:
     runs-on: macos-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Run ktlintFormat
-        run: ./gradlew ktlintFormat
-
-      - name: Build shadowJar
-        run: ./gradlew shadowJar
+      - uses: ./.github/workflows/build-jar.yml
 
       - name: Package .dmg with jpackage (macOS)
         shell: bash
@@ -72,33 +47,7 @@ jobs:
   build-and-package-windows:
     runs-on: windows-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Run ktlintFormat
-        run: ./gradlew ktlintFormat
-
-      - name: Build shadowJar
-        run: ./gradlew shadowJar
+      - uses: ./.github/workflows/build-jar.yml
 
       - name: Package portable app with jpackage (Windows)
         shell: bash
