@@ -79,7 +79,11 @@ jobs:
   release:
     needs: [ build-and-package-macos, build-and-package-windows ]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && 
+       github.event.pull_request.merged == true && 
+       startsWith(github.head_ref, 'releases/'))
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
