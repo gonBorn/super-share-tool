@@ -3,6 +3,10 @@ name: Build, Package and Release
 permissions:
   contents: write
 
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
 on:
   pull_request:
     branches:
@@ -14,7 +18,14 @@ jobs:
   build-and-package-macos:
     runs-on: macos-latest
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
       - uses: ./.github/workflows/build-jar.yml
+        with:
+          runs-on: macos-latest
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Package .dmg with jpackage (macOS)
         shell: bash
@@ -47,7 +58,14 @@ jobs:
   build-and-package-windows:
     runs-on: windows-latest
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
       - uses: ./.github/workflows/build-jar.yml
+        with:
+          runs-on: windows-latest
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Package portable app with jpackage (Windows)
         shell: bash

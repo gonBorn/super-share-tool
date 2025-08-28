@@ -1,14 +1,26 @@
 name: Windows Build and Package
 
+env:
+  RUNNER: windows-latest
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
 on:
   push:
     branches-ignore: [ main ]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ${{ env.RUNNER }}
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
       - uses: ./.github/workflows/build-jar.yml
+        with:
+          runs-on: ${{ env.RUNNER }}
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Package portable app with jpackage (Windows)
         shell: bash

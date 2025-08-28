@@ -1,5 +1,10 @@
 name: MacOS Build and Package
 
+env:
+  RUNNER: macos-latest
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
 on:
   push:
     paths-ignore:
@@ -8,9 +13,16 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ env.RUNNER }}
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
       - uses: ./.github/workflows/build-jar.yml
+        with:
+          runs-on: ${{ env.RUNNER }}
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
 
       - name: Package .dmg with jpackage (macOS)
         shell: bash
