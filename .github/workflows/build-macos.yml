@@ -1,8 +1,5 @@
 name: MacOS Build and Package
 
-env:
-  RUNNER: macos-latest
-
 on:
   push:
     paths-ignore:
@@ -13,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ env.RUNNER }}
+    runs-on: macos-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
