@@ -16,6 +16,7 @@ jobs:
       runs-on: macos-latest
       java-version: '21'
       distribution: 'temurin'
+      artifact-suffix: 'macos'
 
   package:
     runs-on: macos-latest
@@ -33,7 +34,7 @@ jobs:
       - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
-          name: super-share-jar
+          name: super-share-jar-macos
           path: build/libs
 
       - name: Package .dmg with jpackage (macOS)

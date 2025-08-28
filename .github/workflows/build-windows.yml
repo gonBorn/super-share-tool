@@ -16,6 +16,7 @@ jobs:
       runs-on: windows-latest
       java-version: '21'
       distribution: 'temurin'
+      artifact-suffix: 'windows'
 
   package:
     runs-on: windows-latest
@@ -33,7 +34,7 @@ jobs:
       - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
-          name: super-share-jar
+          name: super-share-jar-windows
           path: build/libs
 
       - name: Package portable app with jpackage (Windows)

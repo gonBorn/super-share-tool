@@ -42,7 +42,8 @@ jobs:
           files: |
             artifacts/super-share-dmg/*
             artifacts/super-share-windows-portable/*
-            artifacts/super-share-jar/*
+            artifacts/super-share-jar-macos/*
+            artifacts/super-share-jar-windows/*
           tag_name: "v1.0.${{ github.run_number }}"
           body: "Automated release based on commit ${{ github.sha }}"
           draft: false
