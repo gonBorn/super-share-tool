@@ -1,0 +1,68 @@
+name: Setup Repository Labels
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/setup-labels.yml'
+
+jobs:
+  setup-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+    - name: Create/Update Labels
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const labels = [
+            { name: 'documentation', color: '0075ca', description: 'Documentation related changes' },
+            { name: 'doc-only', color: '1d76db', description: 'Documentation only changes (no code)' },
+            { name: 'ci/cd', color: 'd4c5f9', description: 'CI/CD and workflow changes' },
+            { name: 'backend', color: '0e8a16', description: 'Backend code changes' },
+            { name: 'ui', color: 'a2eeef', description: 'UI and frontend changes' },
+            { name: 'assets', color: 'fbca04', description: 'Asset and resource changes' },
+            { name: 'tests', color: 'd73a49', description: 'Test related changes' },
+            { name: 'dependencies', color: '7057ff', description: 'Dependency updates' },
+            { name: 'config', color: 'f9d0c4', description: 'Configuration changes' }
+          ];
+
+          for (const label of labels) {
+            try {
+              // 尝试获取现有标签
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label.name
+              });
+              
+              // 如果标签存在，更新它
+              await github.rest.issues.updateLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: label.name,
+                color: label.color,
+                description: label.description
+              });
+              console.log(`Updated label: ${label.name}`);
+              
+            } catch (error) {
+              if (error.status === 404) {
+                // 标签不存在，创建新标签
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`Created label: ${label.name}`);
+              } else {
+                console.error(`Error with label ${label.name}:`, error);
+              }
+            }
+          }

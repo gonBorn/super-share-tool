@@ -1,0 +1,50 @@
+# Documentation related changes
+documentation:
+- changed-files:
+  - any-glob-to-any-file: ['README.md', 'docs/**/*', '**/*.md']
+
+# Documentation only changes (no code changes)
+doc-only:
+- changed-files:
+  - any-glob-to-any-file: ['README.md', 'docs/**/*', '**/*.md']
+  - all-globs-to-all-files: '!src/**/*'
+  - all-globs-to-all-files: '!build.gradle.kts'
+  - all-globs-to-all-files: '!settings.gradle.kts'
+  - all-globs-to-all-files: '!gradle.properties'
+  - all-globs-to-all-files: '!gradlew*'
+  - all-globs-to-all-files: '!.github/workflows/*.yml'
+
+# Workflow/CI related changes
+ci/cd:
+- changed-files:
+  - any-glob-to-any-file: ['.github/**/*', 'gradle/**/*', '*.gradle.kts', 'gradlew*']
+
+# Source code changes
+backend:
+- changed-files:
+  - any-glob-to-any-file: ['src/main/kotlin/**/*.kt']
+
+# UI related changes
+ui:
+- changed-files:
+  - any-glob-to-any-file: ['src/main/kotlin/ui/**/*', 'src/main/resources/**/*.css', 'src/main/resources/**/*.js']
+
+# Resource/Assets changes
+assets:
+- changed-files:
+  - any-glob-to-any-file: ['src/main/resources/**/*', 'assets/**/*']
+
+# Test related changes
+tests:
+- changed-files:
+  - any-glob-to-any-file: ['src/test/**/*']
+
+# Dependencies changes
+dependencies:
+- changed-files:
+  - any-glob-to-any-file: ['build.gradle.kts', 'settings.gradle.kts', 'gradle.properties']
+
+# Configuration changes
+config:
+- changed-files:
+  - any-glob-to-any-file: ['*.yml', '*.yaml', '*.json', '*.properties']
