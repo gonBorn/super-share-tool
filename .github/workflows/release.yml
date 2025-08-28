@@ -13,6 +13,10 @@ on:
       - main
     types:
       - closed
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
 
 jobs:
   build-and-package-macos:

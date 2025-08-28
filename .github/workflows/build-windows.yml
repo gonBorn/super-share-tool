@@ -8,6 +8,10 @@ env:
 on:
   push:
     branches-ignore: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
 
 jobs:
   build:
