@@ -5,14 +5,20 @@ documentation:
 
 # Documentation only changes (no code changes)
 doc-only:
-- changed-files:
-  - any-glob-to-any-file: ['README.md', 'docs/**/*', '**/*.md']
-  - all-globs-to-all-files: '!src/**/*'
-  - all-globs-to-all-files: '!build.gradle.kts'
-  - all-globs-to-all-files: '!settings.gradle.kts'
-  - all-globs-to-all-files: '!gradle.properties'
-  - all-globs-to-all-files: '!gradlew*'
-  - all-globs-to-all-files: '!.github/workflows/*.yml'
+  all:
+    - changed-files:
+        any-glob-to-any-file:
+          - 'README.md'
+          - 'docs/**/*'
+          - '**/*.md'
+    - changed-files:
+        all-globs-to-all-files:
+          - '!src/**/*'
+          - '!build.gradle.kts'
+          - '!settings.gradle.kts'
+          - '!gradle.properties'
+          - '!gradlew*'
+          - '!.github/workflows/**'
 
 # Workflow/CI related changes
 ci/cd:
