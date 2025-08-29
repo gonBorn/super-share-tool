@@ -5,6 +5,11 @@ permissions:
 
 on:
   push:
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
+      - 'assets/**'
   pull_request:
     branches:
       - main
@@ -17,45 +22,26 @@ on:
       - 'assets/**'
 
 jobs:
+  build-jar:
+    uses: ./.github/workflows/build-jar.yml
+    with:
+      runs-on: ubuntu-latest
+      java-version: '21'
+      distribution: 'temurin'
+
   package-macos:
-    uses: ./.github/workflows/build-macos.yml
+    needs: build-jar
+    uses: ./.github/workflows/download-and-package.yml
+    with:
+      jar-artifact-name: super-share-jar
+      runs-on: macos-latest
 
   package-windows:
-    runs-on: windows-latest
-    needs: package-macos
-    steps:
-    - name: Download JAR artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: super-share-jar
-        path: build/libs
-
-    - name: Package portable app with jpackage
-      shell: bash
-      run: |
-        APP_VERSION="1.0.${{ github.run_number }}"
-        JAR_FILE=$(basename $(find build/libs -name "super-share-*.jar"))
-        jpackage \
-        --type app-image \
-        --name SuperShare \
-        --input build/libs \
-        --main-jar "$JAR_FILE" \
-        --main-class MainKt \
-        --app-version "$APP_VERSION" \
-        --vendor "zeyan" \
-        --icon src/main/resources/icons/file-share.ico \
-        --dest build/dist
-
-    - name: Zip the portable app
-      shell: pwsh
-      run: |
-        Compress-Archive -Path build/dist/SuperShare/* -DestinationPath build/dist/SuperShare-windows-portable.zip
-
-    - name: Upload portable app artifact (Windows)
-      uses: actions/upload-artifact@v4
-      with:
-        name: super-share-windows-portable-${{ github.run_number }}
-        path: build/dist/SuperShare-windows-portable.zip
+    needs: build-jar
+    uses: ./.github/workflows/download-and-package.yml
+    with:
+      jar-artifact-name: super-share-jar
+      runs-on: windows-latest
 
   release:
     needs: [ package-macos, package-windows ]
