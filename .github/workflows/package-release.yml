@@ -24,6 +24,11 @@ on:
         required: true
         type: boolean
         default: false
+      release_message:
+        description: 'Custom release message (optional)'
+        required: false
+        type: string
+        default: ''
   push:
     branches-ignore:
       - main
@@ -92,6 +97,10 @@ jobs:
             artifacts/super-share-jar-macos/*
             artifacts/super-share-jar-windows/*
           tag_name: "v1.0.${{ github.run_number }}"
-          body: "Automated release based on commit ${{ github.sha }}"
+          body: ${{ 
+            github.event.inputs.release_message || 
+            github.event.pull_request.body || 
+            format('Automated release based on commit {0}', github.sha)
+          }}
           draft: false
           prerelease: false
