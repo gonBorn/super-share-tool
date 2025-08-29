@@ -5,7 +5,7 @@ run-name: >-
   ${{ 
     github.event.pull_request 
       && format('PR #{0} by @{1}', github.event.pull_request.number, github.event.pull_request.user.login) 
-      || format('from {0}: {1} by @{2}', github.ref_name, github.event.head_commit.message, github.event.pull_request.user.login) 
+      || format('from {0}: {1} by @{2}', github.ref_name, github.event.head_commit.message, github.actor)
   }}${{ 
     (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_release == 'true') ||
     (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
