@@ -1,0 +1,46 @@
+name: Package and Release
+
+run-name: >-
+  📦 Build & Package
+  ${{ 
+    format('from {0}: {1} by @{2}', github.ref_name, github.event.head_commit.message, github.actor)
+  }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: 'Confirm to proceed with release'
+        required: true
+        type: boolean
+        default: false
+      release_message:
+        description: 'Custom release message (optional)'
+        required: false
+        type: string
+        default: ''
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
+      - 'assets/**'
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
+      - 'assets/**'
+  merge_group:
+    branches: [main]
+    types: [ checks_requested ]
+
+jobs:
+  package:
+    uses: ./.github/workflows/reuse/reuse-package.yml

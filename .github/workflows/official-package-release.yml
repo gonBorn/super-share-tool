@@ -29,14 +29,6 @@ on:
         required: false
         type: string
         default: ''
-  push:
-    branches-ignore:
-      - main
-    paths-ignore:
-      - 'README.md'
-      - 'docs/**'
-      - '**/*.md'
-      - 'assets/**'
   pull_request:
     branches:
       - main
@@ -52,29 +44,11 @@ on:
     types: [ checks_requested ]
 
 jobs:
-  build-jar:
-    uses: ./.github/workflows/build-jar.yml
-    with:
-      runs-on: ubuntu-latest
-      java-version: '21'
-      distribution: 'temurin'
-
-  package-macos:
-    needs: build-jar
-    uses: ./.github/workflows/download-and-package.yml
-    with:
-      jar-artifact-name: super-share-jar
-      runs-on: macos-latest
-
-  package-windows:
-    needs: build-jar
-    uses: ./.github/workflows/download-and-package.yml
-    with:
-      jar-artifact-name: super-share-jar
-      runs-on: windows-latest
+  package:
+    uses: ./.github/workflows/reuse/reuse-package.yml
 
   release:
-    needs: [ package-macos, package-windows ]
+    needs: package
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_release == 'true') ||
