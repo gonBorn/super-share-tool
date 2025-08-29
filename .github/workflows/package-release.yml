@@ -1,11 +1,29 @@
 name: Package and Release
 
-run-name: "📦 Build & Package${{ github.event.pull_request && format(' PR #{0} by @{1}', github.event.pull_request.number, github.event.pull_request.user.login) || format(' from {0}', github.ref_name) }}${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/'))) && ' → 🚀 Release' || '' }}"
+run-name: >-
+  📦 Build & Package
+  ${{ 
+    github.event.pull_request 
+      && format('PR #{0} by @{1}', github.event.pull_request.number, github.event.pull_request.user.login) 
+      || format('from {0}: {1} by @{2}', github.ref_name, github.event.head_commit.message, github.event.pull_request.user.login) 
+  }}${{ 
+    (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_release == 'true') ||
+    (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+    (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/'))
+      && ' → 🚀 Release' || '' 
+  }}
 
 permissions:
   contents: write
 
 on:
+  workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: 'Confirm to proceed with release'
+        required: true
+        type: boolean
+        default: false
   push:
     branches-ignore:
       - main
@@ -24,6 +42,9 @@ on:
       - 'docs/**'
       - '**/*.md'
       - 'assets/**'
+  merge_group:
+    branches: [main]
+    types: [ checks_requested ]
 
 jobs:
   build-jar:
@@ -51,6 +72,7 @@ jobs:
     needs: [ package-macos, package-windows ]
     runs-on: ubuntu-latest
     if: |
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_release == 'true') ||
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'pull_request' && 
        github.event.pull_request.merged == true && 
