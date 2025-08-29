@@ -25,7 +25,13 @@ on:
         type: boolean
         default: false
       release_message:
-        description: 'Custom release message (optional)'
+        description: |
+          Custom release message (optional)
+          
+          You can use markdown format here:
+          - New features
+          - Bug fixes
+          - Breaking changes
         required: false
         type: string
         default: ''
