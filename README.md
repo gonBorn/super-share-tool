@@ -1,6 +1,6 @@
 # Super Share
 
-![Build Status](https://github.com/gonBorn/super-share-tool/actions/workflows/package-release.yml/badge.svg?branch=main)
+![Build Status](https://github.com/gonBorn/super-share-tool/actions/workflows/official-package-release.yml/badge.svg?branch=main)
 
 Super Share is a simple file sharing server written in Kotlin.
 
