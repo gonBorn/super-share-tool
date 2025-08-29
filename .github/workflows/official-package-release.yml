@@ -1,0 +1,78 @@
+name: Official Package & Release
+
+run-name: >-
+  📦 Build & Package
+  ${{ 
+    github.event.pull_request 
+      && format('PR #{0} by @{1}', github.event.pull_request.number, github.event.pull_request.user.login) 
+      || format('from {0}: {1} by @{2}', github.ref_name, github.event.head_commit.message, github.actor)
+  }}${{ 
+    (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_release == 'true') ||
+    (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+    (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/'))
+      && ' → 🚀 Release' || '' 
+  }}
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_release:
+        description: 'Confirm to proceed with release'
+        required: true
+        type: boolean
+        default: false
+      release_message:
+        description: 'Custom release message (optional)'
+        required: false
+        type: string
+        default: ''
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+    paths-ignore:
+      - 'README.md'
+      - 'docs/**'
+      - '**/*.md'
+      - 'assets/**'
+  merge_group:
+    branches: [main]
+    types: [ checks_requested ]
+
+jobs:
+  package:
+    name: Package
+    uses: ./.github/workflows/reuse-package.yml
+
+  release:
+    name: Release
+    needs: package
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm_release == 'true') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request' && 
+       github.event.pull_request.merged == true && 
+       startsWith(github.head_ref, 'releases/'))
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release and Upload Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/super-share-dmg/*
+            artifacts/super-share-windows-portable/*
+            artifacts/super-share-jar-macos/*
+            artifacts/super-share-jar-windows/*
+          tag_name: "v1.0.${{ github.run_number }}"
+          body: ${{ github.event.inputs.release_message || github.event.pull_request.body || format('Automated release based on commit {0}', github.sha) }}
+          draft: false
+          prerelease: false

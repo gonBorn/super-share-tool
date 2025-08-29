@@ -12,6 +12,7 @@ on:
 
 jobs:
   package:
+    name: Package for ${{ inputs.runs-on == 'windows-latest' && 'Windows' || inputs.runs-on == 'macos-latest' && 'macOS' || inputs.runs-on == 'ubuntu-latest' && 'Linux' || inputs.runs-on }}
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Checkout source code

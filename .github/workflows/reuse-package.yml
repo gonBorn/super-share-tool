@@ -1,0 +1,28 @@
+name: Build and Package
+on:
+  workflow_call:
+
+jobs:
+  build-jar:
+    name: Build JAR
+    uses: ./.github/workflows/reuse-build-jar.yml
+    with:
+      runs-on: ubuntu-latest
+      java-version: '21'
+      distribution: 'temurin'
+
+  package-macos:
+    name: Package for MacOS
+    needs: build-jar
+    uses: ./.github/workflows/reuse-download-and-package.yml
+    with:
+      jar-artifact-name: super-share-jar
+      runs-on: macos-latest
+
+  package-windows:
+    name: Package for Windows
+    needs: build-jar
+    uses: ./.github/workflows/reuse-download-and-package.yml
+    with:
+      jar-artifact-name: super-share-jar
+      runs-on: windows-latest

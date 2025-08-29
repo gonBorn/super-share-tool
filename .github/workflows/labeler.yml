@@ -1,4 +1,4 @@
-name: "Pull Request Labeler"
+name: Pull Request Labeler
 
 run-name: "🏷️ Label PR #${{ github.event.pull_request.number }} by @${{ github.event.pull_request.user.login }}"
 
