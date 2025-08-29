@@ -1,4 +1,4 @@
-name: Release
+name: Package and Release
 
 run-name: "📦 Build & Package${{ github.event.pull_request && format(' PR #{0} by @{1}', github.event.pull_request.number, github.event.pull_request.user.login) || format(' from {0}', github.ref_name) }}${{ ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/'))) && ' → 🚀 Release' || '' }}"
 
