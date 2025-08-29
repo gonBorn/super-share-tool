@@ -97,10 +97,6 @@ jobs:
             artifacts/super-share-jar-macos/*
             artifacts/super-share-jar-windows/*
           tag_name: "v1.0.${{ github.run_number }}"
-          body: ${{ 
-            github.event.inputs.release_message || 
-            github.event.pull_request.body || 
-            format('Automated release based on commit {0}', github.sha)
-          }}
+          body: ${{ github.event.inputs.release_message || github.event.pull_request.body || format('Automated release based on commit {0}', github.sha) }}
           draft: false
           prerelease: false
