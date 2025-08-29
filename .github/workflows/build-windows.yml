@@ -34,10 +34,10 @@ jobs:
       - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
-          name: super-share-jar-windows
+          name: super-share-jar
           path: build/libs
 
-      - name: Package portable app with jpackage (Windows)
+      - name: Package portable app with jpackage
         shell: bash
         run: |
           APP_VERSION="1.0.${{ github.run_number }}"
