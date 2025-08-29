@@ -1,5 +1,7 @@
 name: Release
 
+run-name: "📦 Build & Package ${{ github.event_name == 'push' && format('from push to {0}', github.ref_name) || format('PR #{0} by @{1}', github.event.pull_request.number, github.event.pull_request.user.login) }}${{ (github.event_name == 'push') || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'releases/')) && ' → 🚀 Release' || '' }}"
+
 permissions:
   contents: write
 
