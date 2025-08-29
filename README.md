@@ -1,14 +1,11 @@
 # Super Share
 
-![Build Status](https://github.com/gonBorn/super-share-tool/actions/workflows/build-macos.yml/badge.svg?branch=main)
-![Build Status](https://github.com/gonBorn/super-share-tool/actions/workflows/build-windows.yml/badge.svg?branch=main)
+![Build Status](https://github.com/gonBorn/super-share-tool/actions/workflows/package-release.yml/badge.svg?branch=main)
 
 Super Share is a simple file sharing server written in Kotlin.
 
 It allows you to share files over HTTP, making it easy to download, upload files and even send messages between devices
 on the same network.
-
-[Build](https://github.com/gonBorn/super-share-tool/actions)
 
 ## User Handbook
 
