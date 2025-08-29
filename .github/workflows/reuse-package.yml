@@ -4,7 +4,7 @@ on:
 
 jobs:
   build-jar:
-    uses: ./.github/workflows/reuse/reuse-build-jar.yml
+    uses: ./.github/workflows/reuse-build-jar.yml
     with:
       runs-on: ubuntu-latest
       java-version: '21'
@@ -12,14 +12,14 @@ jobs:
 
   package-macos:
     needs: build-jar
-    uses: ./.github/workflows/reuse/reuse-download-and-package.yml
+    uses: ./.github/workflows/reuse-download-and-package.yml
     with:
       jar-artifact-name: super-share-jar
       runs-on: macos-latest
 
   package-windows:
     needs: build-jar
-    uses: ./.github/workflows/reuse/reuse-download-and-package.yml
+    uses: ./.github/workflows/reuse-download-and-package.yml
     with:
       jar-artifact-name: super-share-jar
       runs-on: windows-latest

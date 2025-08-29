@@ -45,7 +45,7 @@ on:
 
 jobs:
   package:
-    uses: ./.github/workflows/reuse/reuse-package.yml
+    uses: ./.github/workflows/reuse-package.yml
 
   release:
     needs: package
