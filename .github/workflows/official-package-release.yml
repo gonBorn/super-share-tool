@@ -45,9 +45,11 @@ on:
 
 jobs:
   package:
+    name: Package
     uses: ./.github/workflows/reuse-package.yml
 
   release:
+    name: Release
     needs: package
     runs-on: ubuntu-latest
     if: |
